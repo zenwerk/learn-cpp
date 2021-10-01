@@ -13,3 +13,5 @@ add_compile_options(
 )
 
 add_subdirectory(sfml)
+
+add_subdirectory(rtmidi)
