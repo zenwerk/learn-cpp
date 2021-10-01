@@ -1,3 +1,5 @@
+set(CMAKE_CXX_STANDARD 14)
+
 CPMAddPackage(
     NAME sfml
     GITHUB_REPOSITORY SFML/SFML

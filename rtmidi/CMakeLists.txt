@@ -1,4 +1,5 @@
-# 依存関係のインストール
+set(CMAKE_CXX_STANDARD 14)
+
 CPMAddPackage(
     NAME rtmidi
     GITHUB_REPOSITORY thestk/rtmidi
