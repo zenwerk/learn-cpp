@@ -12,10 +12,4 @@ add_compile_options(
     -Wall
 )
 
-CPMAddPackage(
-    NAME sfml
-    GITHUB_REPOSITORY SFML/SFML
-    GIT_TAG 2.5.1
-)
-
-add_subdirectory(src)
+add_subdirectory(sfml)
