@@ -1,11 +1,5 @@
 set(CMAKE_CXX_STANDARD 14)
 
-CPMAddPackage(
-    NAME rtmidi
-    GITHUB_REPOSITORY thestk/rtmidi
-    GIT_TAG 4.0.0
-)
-
 add_executable(rtmidi_sample
     main.cc
     )
