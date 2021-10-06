@@ -9,7 +9,7 @@ void wait_for_a_while(uv_idle_t* handle) {
         uv_idle_stop(handle); // イベントループの管理リストからハンドルを削除
 }
 
-int main(void) {
+int main() {
     uv_idle_t idler; // ハンドルオブジェクト
 
     uv_idle_init(uv_default_loop(), &idler); // ループの初期化   (Idleハンドルのセットアップ)

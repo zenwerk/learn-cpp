@@ -1,8 +1,7 @@
-#include <cstdint>
 #include <iostream>
 
-#include "RtMidi.h"
 #include <uv.h>
+#include <RtMidi.h>
 
 #ifdef _WINDOWS
 #include <windows.h>
@@ -24,9 +23,9 @@ void wait_for_a_while(uv_idle_t* handle) {
 
     auto mout = (RtMidiOut *)handle->data;
 
-    if (counter >= 10000000) {
+    if (counter >= 10000000)
         uv_idle_stop(handle); // イベントループの管理リストからハンドルを削除
-    }
+/*
     if (counter % 1000000 == 0) {
         std::vector<unsigned char> message;
         // Send out a series of MIDI messages.
@@ -52,9 +51,10 @@ void wait_for_a_while(uv_idle_t* handle) {
         mout->sendMessage(&message);
         std::cout << "Midi OUT!" << std::endl;
     }
+*/
 }
 
-int main(void) {
+int main() {
     uv_idle_t idler; // ハンドルオブジェクト
 
     std::unique_ptr<RtMidiOut> mout = nullptr;
@@ -81,20 +81,17 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    uv_idle_init(uv_default_loop(), &idler); // ループの初期化   (Idleハンドルのセットアップ)
     idler.data = &mout;
+    uv_idle_init(uv_default_loop(), &idler); // ループの初期化   (Idleハンドルのセットアップ)
 
     // start はハンドルの有効化(activate)を意味する
     // idler が指す uv_loop_t が管理する Idleハンドル管理リストに idler が追加される
     uv_idle_start(&idler, wait_for_a_while); // コールバックの登録(Idleハンドルのセットアップ)
 
     std::cout << "Idling...\n";
-    std::cout << "Idling...2\n";
-    std::cout << "Idling...3\n";
 
     uv_run(uv_default_loop(), UV_RUN_DEFAULT); // イベントループの開始
 
-    std::cout << "PreExit...\n";
     std::cout << "Exit...\n";
 
     uv_loop_close(uv_default_loop()); // 終了処理

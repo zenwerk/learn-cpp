@@ -7,9 +7,11 @@ void wait_for_a_while(uv_idle_t* handle) {
 
     if (counter >= (int64_t)50e5)
         uv_idle_stop(handle); // イベントループの管理リストからハンドルを削除
+    if (counter % (uint64_t)10e5 == 0)
+        std::cout << counter << std::endl;
 }
 
-int main(void) {
+int main() {
     uv_idle_t idler; // ハンドルオブジェクト
 
     uv_idle_init(uv_default_loop(), &idler); // ループの初期化   (Idleハンドルのセットアップ)
