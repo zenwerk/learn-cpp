@@ -26,6 +26,7 @@ CPMAddPackage(
     NAME uvw
     GITHUB_REPOSITORY skypjack/uvw
     GIT_TAG v2.10.0_libuv_v1.42
+    OPTIONS "BUILD_UVW_LIBS YES"
 )
 
 add_subdirectory(sfml)
@@ -33,3 +34,5 @@ add_subdirectory(sfml)
 add_subdirectory(rtmidi)
 
 add_subdirectory(libuv)
+
+add_subdirectory(uvw)
