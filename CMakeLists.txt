@@ -14,6 +14,7 @@ CPMAddPackage(
     NAME rtmidi
     GITHUB_REPOSITORY thestk/rtmidi
     GIT_TAG 4.0.0
+    OPTIONS "RTMIDI_BUILD_STATIC_LIBS YES"
 )
 
 CPMAddPackage(

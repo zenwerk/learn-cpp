@@ -15,3 +15,26 @@ add_executable(uvw-tcp-sample
 add_executable(uvw-idle-basic
     idle-basic.cc
     )
+
+add_executable(uvw-idle-rtmidi
+    idle-rtmidi.cc
+    )
+
+target_include_directories(uvw-idle-rtmidi
+    PRIVATE
+    ${rtmidi_SOURCE_DIR}
+    )
+
+target_link_libraries(uvw-idle-rtmidi
+    PRIVATE
+    rtmidi
+    )
+
+add_executable(uvw-async-basic
+    async-basic.cc)
+
+add_executable(uvw-tty-basic
+    tty-basic.cc)
+
+add_executable(uvw-queue-work
+    queue-work.cc)
