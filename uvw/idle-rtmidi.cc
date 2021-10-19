@@ -1,16 +1,16 @@
 #include <iostream>
+#include <thread>
 
 #include <RtMidi.h>
 #include <uvw.hpp>
-
-#include <Windows.h>
 
 
 void mycallback(double deltatime, std::vector<unsigned char> *message, void *userData) {
     auto async = static_cast<uvw::AsyncHandle *>(userData);
 
-//    async->data(std::shared_ptr<unsigned char>(message->data()));
-//    async->send();
+    auto msg = std::make_shared<std::vector<unsigned char>>(*message);
+    async->data(msg);
+    async->send();
 }
 
 void midiOut(std::shared_ptr<RtMidiOut> &mout) {
@@ -30,14 +30,13 @@ void midiOut(std::shared_ptr<RtMidiOut> &mout) {
     message[1] = 64;
     message[2] = 90;
     mout->sendMessage(&message);
-    // _sleep(500); // Platform-dependent ... see example in tests directory.
-    Sleep(500);
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
     // Note Off: 128, 64, 40
     message[0] = 128;
     message[1] = 64;
     message[2] = 40;
     mout->sendMessage(&message);
-    std::cout << "Midi OUT!" << std::endl;
+    std::cout << "MIDI OUT!" << std::endl;
 }
 
 
@@ -71,9 +70,9 @@ int main() {
         return 0;
     }
     midiin->openPort(0);
-    midiin->setCallback(&mycallback, &async);
     // Don't ignore sysex, timing, or active sensing messages.
     midiin->ignoreTypes(false, false, false);
+    midiin->setCallback(&mycallback, async.get());
 
     // IdleHandle
     idler->data(midiout);
@@ -93,15 +92,14 @@ int main() {
     idler->start();
 
     // AsyncHandle
-    async->on<uvw::AsyncEvent>([](const uvw::AsyncEvent &ev, uvw::AsyncHandle &async) {
-        std::cout << "MIDI IN" << std::endl;
-//        auto message = async.data<std::vector<unsigned char>>();
-//
-//        unsigned int nBytes = message->size();
-//        for (unsigned int i = 0; i < nBytes; i++)
-//            std::cout << "Byte " << i << " = " << (int) message->at(i) << ", ";
-        //if (nBytes > 0)
-        //    std::cout << "stamp = " << data->deltatime << std::endl;
+    async->on<uvw::AsyncEvent>([](const uvw::AsyncEvent &, uvw::AsyncHandle &handle) {
+        auto message = handle.data<std::vector<unsigned char>>();
+
+        unsigned int nBytes = message->size();
+        for (unsigned int i = 0; i < nBytes; i++)
+            std::cout << "Byte " << i << " = " << (int) message->at(i) << ", ";
+        // if (nBytes > 0)
+        //     std::cout << "stamp = " << message->deltatime << std::endl;
     });
 
     if (async->init())
