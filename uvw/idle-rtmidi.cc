@@ -1,15 +1,25 @@
 #include <iostream>
+#include <memory>
 #include <thread>
 
 #include <RtMidi.h>
 #include <uvw.hpp>
 
 
+class MidiInData {
+public:
+    double deltatime;
+    std::vector<unsigned char> message;
+};
+
 void mycallback(double deltatime, std::vector<unsigned char> *message, void *userData) {
     auto async = static_cast<uvw::AsyncHandle *>(userData);
 
-    auto msg = std::make_shared<std::vector<unsigned char>>(*message);
-    async->data(msg);
+    auto data = std::make_shared<MidiInData>();
+    data->message = *message;
+    data->deltatime = deltatime;
+
+    async->data(data);
     async->send();
 }
 
@@ -93,13 +103,14 @@ int main() {
 
     // AsyncHandle
     async->on<uvw::AsyncEvent>([](const uvw::AsyncEvent &, uvw::AsyncHandle &handle) {
-        auto message = handle.data<std::vector<unsigned char>>();
+        auto data = handle.data<MidiInData>();
+        auto message = data->message;
 
-        unsigned int nBytes = message->size();
+        unsigned int nBytes = message.size();
         for (unsigned int i = 0; i < nBytes; i++)
-            std::cout << "Byte " << i << " = " << (int) message->at(i) << ", ";
-        // if (nBytes > 0)
-        //     std::cout << "stamp = " << message->deltatime << std::endl;
+            std::cout << "Byte " << i << " = " << (int) message.at(i) << ", ";
+        if (nBytes > 0)
+            std::cout << "stamp = " << data->deltatime << std::endl;
     });
 
     if (async->init())
