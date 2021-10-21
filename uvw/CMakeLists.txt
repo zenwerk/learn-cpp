@@ -38,3 +38,6 @@ add_executable(uvw-tty-basic
 
 add_executable(uvw-queue-work
     queue-work.cc)
+
+add_executable(uvw-timer-basic
+    timer-basic.cc)
