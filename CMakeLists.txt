@@ -37,3 +37,7 @@ add_subdirectory(rtmidi)
 add_subdirectory(libuv)
 
 add_subdirectory(uvw)
+
+add_subdirectory(caper)
+
+add_subdirectory(std)

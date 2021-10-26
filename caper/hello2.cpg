@@ -1,0 +1,11 @@
+// トークンに型指定
+%token Hello<std::string> World<std::string>;
+
+%namespace hello_world;
+%dont_use_stl;
+
+// Greet に引数指定「`(0)`や`(1)`」がある
+// 数値は何番目の引数かを表す
+// この場合、Greetの0番目の引数が`Hello`に対応する値、1番目の引数が`World`に対応する
+// なお、引数指定がないトークンはセマンティックアクション呼び出し時に用いられない
+HelloWorld<std::string> : [Greet] Hello(0) World(1);

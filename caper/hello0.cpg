@@ -1,0 +1,12 @@
+// トークン定義
+// token_Hello と token_World の二種類
+%token Hello World;
+
+// 出力hppファイルのnamespace
+%namespace hello_world;
+
+// vector とかを使わないソースを吐く
+%dont_use_stl;
+
+// [セマンティックアクション] 受理する token の並び
+HelloWorld<int> : [] Hello World;
