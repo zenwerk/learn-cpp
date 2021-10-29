@@ -1,4 +1,4 @@
-// from: https://gist.github.com/dgski/d00303b4a8be2d3c109d7a97d77106a3#file-recursive_data_composition-cpp
+﻿// from: https://gist.github.com/dgski/d00303b4a8be2d3c109d7a97d77106a3#file-recursive_data_composition-cpp
 #include <iostream>
 #include <variant>
 #include <vector>
@@ -64,11 +64,27 @@ Sequence vecToSeq(const std::vector<T>& vec, Func func) {
     return result;
 }
 
-struct Visiter {
-    void operator()(Int& n) {
-    }
-};
 
+void printNodes(const Node& node) {
+    struct MyVisiter {
+        void operator()(const Sequence& seq) {
+            for(const auto& d : seq) {
+                std::cout << d.m_name << std::endl;
+                printNodes(d);
+            }
+        }
+        void operator()(Int i) {
+            std::cout << "Int:" << i << std::endl;
+        }
+        void operator()(const String& s) {
+            std::cout << "String:" << s << std::endl;
+        }
+        void operator()(Null) {
+            std::cout << "Null" << std::endl;
+        }
+    };
+    std::visit(MyVisiter{}, node.m_data);
+}
 
 int main() {
     auto root =
@@ -84,9 +100,6 @@ int main() {
 
     std::cout << root << std::endl;
 
-    Visiter v;
-    v(Data{1});
-
     auto root2 =
         Node("test",
             Sequence({
@@ -94,6 +107,8 @@ int main() {
                 Node("age", 55)}));
 
     std::cout << root2 << std::endl;
+
+    printNodes(root2);
 
     struct Custom {
         int id;
@@ -113,6 +128,31 @@ int main() {
             Node("requestId", 232324)}));
 
     std::cout << root3 << std::endl;
+
+    /*
+    {
+        using namespace std;
+        struct PrintVisitor {
+            void operator()(int x) {
+                cout << "int値 : " << x << endl;
+            }
+            void operator()(char x) {
+                cout << "char値 : " << x << endl;
+            }
+            void operator()(const string& x) {
+                cout << "string値 : " << x << endl;
+            }
+        };
+        variant<int, char, string> v = 3;
+        // 代入されている値を出力する
+        visit(PrintVisitor{}, v);
+        // 文字列を代入し、代入されている値を出力する
+        v = "Hello";
+        visit(PrintVisitor{}, v);
+        v = 'a';
+        visit(PrintVisitor{}, v);
+    }
+    */
 
     return 0;
 }
