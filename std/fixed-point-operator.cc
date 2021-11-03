@@ -38,5 +38,5 @@ int main()
 {
     using V = std::vector<ScriptParameter>;
     ScriptParameter k {V{1, false, "abc", V{2, V{"x", "y"}, 3.0}}};
-    auto a = V{1, 2, 3, ScriptParameter{1}, ScriptParameter {ScriptParameter {}}};
+    auto a = V{1, 2, 3, ScriptParameter{V{1,2,false, "foo"}}, ScriptParameter {ScriptParameter {}}};
 }

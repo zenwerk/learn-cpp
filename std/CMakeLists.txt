@@ -11,3 +11,6 @@ add_executable(y-combinator
 
 add_executable(fixed-point-operator
     fixed-point-operator.cc)
+
+add_executable(delegate-to-class
+    delegate-to-class.cc)
