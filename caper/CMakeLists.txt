@@ -22,3 +22,6 @@ add_executable(caper-hello4
 
 add_executable(caper-hello5
     hello5.cc)
+
+add_executable(caper-hello6
+    hello6.cc)

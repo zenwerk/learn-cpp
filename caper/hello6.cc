@@ -1,6 +1,6 @@
 #include <variant>
-#include "hello5_ast.hpp"
-#include "hello5.hpp"
+#include "hello6_ast.hpp"
+#include "hello6.hpp"
 #include <iostream>
 
 class unexpected_char : public std::exception {
@@ -89,13 +89,13 @@ struct SemanticAction {
     void stack_overflow() {}
 
     template<class T>
-    void downcast(T &x, Value y) { x = boost::get<T>(y); }
+    void downcast(T &x, Value y) { x = std::get<T>(y); }
 
     template<class T>
     void upcast(Value &x, const T &y) { x = y; }
 
     // 式を返す
-    Expr MakeExpr(const Term &x) { return Expr(x); }
+    Expr MakeExpr(const Term &x) { return x; }
 
     // +演算を返す
     Expr MakeAdd(const Expr &x, const Term &y) {
