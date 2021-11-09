@@ -1,6 +1,5 @@
-#include <functional>
-#include <variant>
-#include <vector>
+#include <mapbox/variant.hpp>
+#include <iostream>
 
 struct Add;
 struct Sub;
@@ -12,48 +11,17 @@ struct BinOpTerm;
 template<class OpTag>
 struct BinOpExpr;
 
-struct UnaryTerm;
-struct BinaryTerm;
-struct UnaryExpr;
-struct BinaryExpr;
 
-template<class T, class OpTag>
-struct BinOp {
-    T lhs;
-    T rhs;
-
-    BinOp(const T &x, const T &y)
-        : lhs(x), rhs(y) {}
-};
-
-//using TermBinOperations = std::vector<BinOpTerm<Mul>, BinOpTerm<Div>>;
-using Term = std::variant<UnaryTerm, BinaryTerm, int>;
-
-struct UnaryTerm {
-    std::unique_ptr<Term> rhs;
-    std::function<Term(Term)> func;
-};
-
-struct BinaryTerm {
-    std::unique_ptr<Term> lhs;
-    Term rhs;
-    std::function<Term(Term, Term)> func;
-};
-
-//typedef std::variant<
-//        int,
-//        boost::recursive_wrapper<BinOpTerm<Mul> >,
-//        boost::recursive_wrapper<BinOpTerm<Div> > >
-//        Term;
-
-using ExprBinOperations = std::variant<BinOpExpr<Add>, BinOpExpr<Sub>>;
-using Expr = std::variant<Term, ExprBinOperations>;
-
-//typedef std::variant <
-//Term,
-//boost::recursive_wrapper<BinOpExpr<Add> >,
-//boost::recursive_wrapper<BinOpExpr<Sub> >>
-//        Expr;
+typedef mapbox::util::variant<
+    int,
+    mapbox::util::recursive_wrapper<BinOpTerm<Mul> >,
+    mapbox::util::recursive_wrapper<BinOpTerm<Div> > >
+    Term;
+typedef mapbox::util::variant<
+    Term,
+    mapbox::util::recursive_wrapper<BinOpExpr<Add> >,
+    mapbox::util::recursive_wrapper<BinOpExpr<Sub> > >
+    Expr;
 
 template<class OpTag>
 struct BinOpTerm {
@@ -61,7 +29,7 @@ struct BinOpTerm {
     Term rhs;
 
     BinOpTerm(const Term &x, const Term &y)
-            : lhs(x), rhs(y) {}
+        : lhs(x), rhs(y) {}
 };
 
 template<class OpTag>
@@ -70,5 +38,46 @@ struct BinOpExpr {
     Expr rhs;
 
     BinOpExpr(const Expr &x, const Expr &y)
-            : lhs(x), rhs(y) {}
+        : lhs(x), rhs(y) {}
 };
+
+std::ostream &operator<<(std::ostream &os, const Expr &x) {
+    os <<  "EXPR";
+    return os;
+}
+
+template<class T>
+std::ostream &operator<<(std::ostream &os, const BinOpTerm<T> &x) {
+    os << x.lhs << " ? " << x.rhs;
+    return os;
+}
+
+template<>
+std::ostream &operator<<<Mul>(std::ostream &os, const BinOpTerm<Mul> &x) {
+    os << x.lhs << " * " << x.rhs;
+    return os;
+}
+
+template<>
+std::ostream &operator<<<Div>(std::ostream &os, const BinOpTerm<Div> &x) {
+    os << x.lhs << " / " << x.rhs;
+    return os;
+}
+
+template<class T>
+std::ostream &operator<<(std::ostream &os, const BinOpExpr<T> &x) {
+    os << x.lhs << " ? " << x.rhs;
+    return os;
+}
+
+template<>
+std::ostream &operator<<<Add>(std::ostream &os, const BinOpExpr<Add> &x) {
+    os << x.lhs << " + " << x.rhs;
+    return os;
+}
+
+template<>
+std::ostream &operator<<<Sub>(std::ostream &os, const BinOpExpr<Sub> &x) {
+    os << x.lhs << " - " << x.rhs;
+    return os;
+}

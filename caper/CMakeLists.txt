@@ -5,6 +5,10 @@ if(NOT CAPER)
     message(FATAL_ERROR "caper (or caper.exe) program is required")
 endif()
 
+include_directories(
+    ${mapbox_variant_SOURCE_DIR}/include
+    )
+
 add_executable(caper-hello0
     hello0.cc)
 

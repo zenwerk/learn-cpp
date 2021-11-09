@@ -30,6 +30,13 @@ CPMAddPackage(
     OPTIONS "BUILD_UVW_LIBS YES"
 )
 
+CPMAddPackage(
+    NAME mapbox_variant
+    GITHUB_REPOSITORY mapbox/variant
+    GIT_TAG f87fcbda9daf13fba47a6a889696b0ad23fc098d
+    DOWNLOAD_ONLY YES
+)
+
 add_subdirectory(sfml)
 
 add_subdirectory(rtmidi)

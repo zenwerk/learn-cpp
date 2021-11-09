@@ -1,4 +1,5 @@
-#include <variant>
+#include <mapbox/variant.hpp>
+#include <mapbox/variant_visitor.hpp>
 #include "hello5_ast.hpp"
 #include "hello5.hpp"
 #include <iostream>
@@ -6,7 +7,7 @@
 class unexpected_char : public std::exception {
 };
 
-typedef std::variant<int, Term, Expr> Value;
+typedef mapbox::util::variant<int, Term, Expr> Value;
 
 template<class It>
 class scanner {
@@ -79,7 +80,6 @@ private:
     It e_;
     It c_;
     char_type unget_;
-
 };
 
 // パーサーは variant に所属しているASTノードをパース結果から返す
@@ -89,7 +89,7 @@ struct SemanticAction {
     void stack_overflow() {}
 
     template<class T>
-    void downcast(T &x, Value y) { x = boost::get<T>(y); }
+    void downcast(T &x, Value y) { x = mapbox::util::get<T>(y); }
 
     template<class T>
     void upcast(Value &x, const T &y) { x = y; }
@@ -127,36 +127,36 @@ struct SemanticAction {
 
 // これが std::vistor の役割で ASTノードを受け取って処理をする実体
 // ここで x.lhs とか x.rhs で再帰的に木構造を下っていく、ので variant が再帰的に定義されていると嬉しい
-struct calculator : public boost::static_visitor<int> {
+struct calculator {
     int operator()(int n) const { return n; }
 
     int operator()(const Term &x) const {
-        return boost::apply_visitor(*this, x);
+        return mapbox::util::apply_visitor(*this, x);
     }
 
     int operator()(const BinOpTerm <Mul> &x) const {
         // ここで x.func(visit, visit) とかしているのが EvaluatorExpression の違いだな
-        return boost::apply_visitor(calculator(), x.lhs) *
-               boost::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(calculator(), x.lhs) *
+               mapbox::util::apply_visitor(calculator(), x.rhs);
     }
 
     int operator()(const BinOpTerm <Div> &x) const {
-        return boost::apply_visitor(calculator(), x.lhs) /
-               boost::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(calculator(), x.lhs) /
+               mapbox::util::apply_visitor(calculator(), x.rhs);
     }
 
     int operator()(const Expr &x) const {
-        return boost::apply_visitor(calculator(), x);
+        return mapbox::util::apply_visitor(calculator(), x);
     }
 
     int operator()(const BinOpExpr <Add> &x) const {
-        return boost::apply_visitor(calculator(), x.lhs) +
-               boost::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(calculator(), x.lhs) +
+               mapbox::util::apply_visitor(calculator(), x.rhs);
     }
 
     int operator()(const BinOpExpr <Sub> &x) const {
-        return boost::apply_visitor(calculator(), x.lhs) -
-               boost::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(calculator(), x.lhs) -
+               mapbox::util::apply_visitor(calculator(), x.rhs);
     }
 };
 
@@ -174,14 +174,14 @@ int main(int, char **) {
     calc::Token token;
     for (;;) {
         Value v;
-        token = scanner.get(v);
+        token = s.get(v);
         if (parser.post(token, v)) { break; }
     }
 
     Value v;
     if (parser.accept(v)) {
         std::cerr << "accpeted\n";
-        std::cerr << boost::apply_visitor(calculator(), v)
+        std::cerr << mapbox::util::apply_visitor(calculator(), v)
                   << std::endl;
     }
 

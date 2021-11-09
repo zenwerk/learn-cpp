@@ -86,6 +86,20 @@ void printNodes(const Node& node) {
     std::visit(MyVisiter{}, node.m_data);
 }
 
+// Recursive Variant
+struct RecursiveVariant;
+
+struct RecursiveVariant {
+    using Value = std::variant<int,
+        std::string,
+        std::unique_ptr<RecursiveVariant> >;
+    Value value;
+};
+
+void foo() {
+    RecursiveVariant rv = {1};
+}
+
 int main() {
     auto root =
         Node("addUserRequest",
