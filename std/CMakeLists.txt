@@ -14,3 +14,6 @@ add_executable(fixed-point-operator
 
 add_executable(delegate-to-class
     delegate-to-class.cc)
+
+add_executable(std-move-semantics
+    move_semantics.cc)
