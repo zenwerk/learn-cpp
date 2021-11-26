@@ -1,4 +1,5 @@
 #include <iostream>
+#include <memory>
 
 
 struct Point {
@@ -35,7 +36,7 @@ struct Point {
     Point operator=(const Point &) = delete;
 };
 
-int main() {
+void pointExample() {
     int x = 1;
     int y = 2;
 
@@ -59,4 +60,63 @@ int main() {
     // call move assign operator
     p4 = Point(&x, &y);
     p4.print();
+}
+
+struct U {
+    std::unique_ptr<int> val;
+
+    explicit U(std::unique_ptr<int> val_) noexcept: val(std::move(val_)) {}
+
+    U(U &&r) noexcept: val(std::move(r.val)) {
+        std::cout << "call move constructor" << std::endl;
+    }
+
+    U &operator=(U &&r) noexcept {
+        std::cout << "call move assign operator" << std::endl;
+        this->val = std::move(r.val);
+        return *this;
+    }
+
+    void print() const {
+        if (val)
+            std::cout << "val:" << *val << std::endl;
+        else
+            std::cout << "val was moved" << std::endl;
+    }
+};
+
+void uExample() {
+    U u1{std::make_unique<int>(1)};
+    u1.print();
+
+    U u2 = std::move(u1);
+    u2.print();
+    u1.print();
+
+    U &&u3 = std::move(u2);
+    u3.print();
+    u2.print();
+
+    u3 = U(std::make_unique<int>(2));
+    u3.print();
+    u2.print();
+
+    auto a = std::make_unique<U>(U{std::make_unique<int>(3)});
+    a->print();
+    std::unique_ptr<U> b;
+    b = std::move(a);
+    b->print();
+    if (a) {
+        std::cout << "foo" << std::endl;
+        a->print();
+    }
+
+}
+
+int main() {
+    pointExample();
+
+    uExample();
+
+    return 0;
 }
