@@ -1,0 +1,46 @@
+%token NL;
+%token Number<int>;
+%token LP RP;
+%token ADD SUB;
+%token MUL DIV;
+
+
+%namespace calc;
+%dont_use_stl;
+
+//%token NL
+//%token NUMBER
+//%token LP
+//%token RP
+//%left ADDOP SUBOP /* 左結合left  +  -   */
+//%left MULOP DIVOP /* 左結合left  *  /   */
+//%right UMINUS     /* 右結合 -           */
+
+Start<>
+    : [] Expr NL
+    ;
+
+// LALR は後に来るルールから先に還元されるので`1+2*3`のとき `1 +` まで consume したあと `2` から先読みして `*` が来るので Term に還元される(で合ってるはず...)
+// 右結合か左結合かは、`Expr -> Expr Add Term` のような左再帰の形で書くかどうか
+// 優先順位が高いものほど後に定義していく
+Expr<Expr>
+    : [MakeExpr] Term
+    | [MakeAdd] Expr(0) ADD Term(1)
+    | [MakeSub] Expr(0) SUB Term(1)
+    ;
+
+Term<Term>
+    : [MakeTerm] Factor(0)
+    | [MakeMul] Term(0) MUL Factor(1)
+    | [MakeDiv] Term(0) DIV Factor(1)
+    ;
+
+Factor<Factor>
+    : [MakeFactor] Literal
+    | [DoUminus] SUB Factor(0)
+    ;
+
+Literal<Literal>
+    : [MakeLiteral] Number(0)
+    | [MakeLiteral] LP Expr(0) RP
+    ;

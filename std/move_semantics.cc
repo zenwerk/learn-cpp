@@ -66,6 +66,7 @@ struct U {
     std::unique_ptr<int> val;
 
     explicit U(std::unique_ptr<int> val_) noexcept: val(std::move(val_)) {}
+    explicit U(int&& val_) noexcept : val(std::make_unique<int>(val_)) {}
 
     U(U &&r) noexcept: val(std::move(r.val)) {
         std::cout << "call move constructor" << std::endl;
@@ -111,12 +112,33 @@ void uExample() {
         a->print();
     }
 
+    auto bval = std::move(b->val);
+    std::cout << *bval << std::endl;
+
+    if (b->val)
+        std::cout << b->val << std::endl;
+    else
+        std::cout << "b->val moved" << std::endl;
+}
+
+void foo(int* ptr) {
+    *ptr = 999;
+}
+
+void smartPointer() {
+    auto a = std::make_unique<int>(0);
+    std::cout << "------------------" << std::endl;
+    std::cout << *a << std::endl;
+    foo(a.get());
+    std::cout << *a << std::endl;
 }
 
 int main() {
     pointExample();
 
     uExample();
+
+    smartPointer();
 
     return 0;
 }

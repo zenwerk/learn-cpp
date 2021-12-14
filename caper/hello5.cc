@@ -1,5 +1,4 @@
 #include <mapbox/variant.hpp>
-#include <mapbox/variant_visitor.hpp>
 #include "hello5_ast.hpp"
 #include "hello5.hpp"
 #include <iostream>
@@ -7,7 +6,7 @@
 class unexpected_char : public std::exception {
 };
 
-typedef mapbox::util::variant<int, Term, Expr> Value;
+using Value = mapbox::util::variant<int, Term, Expr>;
 
 template<class It>
 class scanner {
@@ -136,27 +135,27 @@ struct calculator {
 
     int operator()(const BinOpTerm <Mul> &x) const {
         // ここで x.func(visit, visit) とかしているのが EvaluatorExpression の違いだな
-        return mapbox::util::apply_visitor(calculator(), x.lhs) *
-               mapbox::util::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(*this, x.lhs) *
+               mapbox::util::apply_visitor(*this, x.rhs);
     }
 
     int operator()(const BinOpTerm <Div> &x) const {
-        return mapbox::util::apply_visitor(calculator(), x.lhs) /
-               mapbox::util::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(*this, x.lhs) /
+               mapbox::util::apply_visitor(*this, x.rhs);
     }
 
     int operator()(const Expr &x) const {
-        return mapbox::util::apply_visitor(calculator(), x);
+        return mapbox::util::apply_visitor(*this, x);
     }
 
     int operator()(const BinOpExpr <Add> &x) const {
-        return mapbox::util::apply_visitor(calculator(), x.lhs) +
-               mapbox::util::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(*this, x.lhs) +
+               mapbox::util::apply_visitor(*this, x.rhs);
     }
 
     int operator()(const BinOpExpr <Sub> &x) const {
-        return mapbox::util::apply_visitor(calculator(), x.lhs) -
-               mapbox::util::apply_visitor(calculator(), x.rhs);
+        return mapbox::util::apply_visitor(*this, x.lhs) -
+               mapbox::util::apply_visitor(*this, x.rhs);
     }
 };
 

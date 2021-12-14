@@ -2,5 +2,6 @@
 %namespace hello_world;
 %dont_use_stl;
 
+// 非終端記号 HelloWorld は int型
 // セマンティックアクション Greet は int を返す
 HelloWorld<int> : [Greet] Hello World;

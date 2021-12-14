@@ -16,7 +16,10 @@ struct SemanticAction {
      * 今回は文法ファイルで定義したGreetの受理結果は `HelloWorld<int>` なので
      * パーサの第1テンプレートパラメータとして指定した値集合全体の型もintなので以下の1行定義でOK
      */
-    void upcast(int &to, int from) { to = from; /* 値集合の型 <- セマンティックアクションの結果の型 */}
+    void upcast(int &parser_value, int result_of_semantic_action) {
+        /* 値集合の型 <- セマンティックアクションの結果の型 */
+        parser_value = result_of_semantic_action;
+    }
 
     // セマンティックアクション 'Greet' の定義
     int Greet() {

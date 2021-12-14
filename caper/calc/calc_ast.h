@@ -1,4 +1,5 @@
 #include <memory>
+#include <utility>
 
 struct Node {
     virtual ~Node() = default;
@@ -21,10 +22,10 @@ struct Number : public Node {
 };
 
 struct AddExpr : public Expr {
-    std::unique_ptr<Expr> lhs;
-    std::unique_ptr<Expr> rhs;
+    std::shared_ptr<Expr> lhs;
+    std::shared_ptr<Expr> rhs;
 
-    AddExpr(std::unique_ptr<Expr> x, std::unique_ptr<Expr> y) : lhs(std::move(x)), rhs(std::move(y)) {}
+    AddExpr(std::shared_ptr<Expr> x, std::shared_ptr<Expr> y) : lhs(std::move(x)), rhs(std::move(y)) {}
 
     // Move constructor
     AddExpr(AddExpr &&r) noexcept: lhs(std::move(r.lhs)), rhs(std::move(r.rhs)) {}
@@ -33,45 +34,45 @@ struct AddExpr : public Expr {
 };
 
 struct SubExpr : public Expr {
-    std::unique_ptr<Expr> lhs;
-    std::unique_ptr<Expr> rhs;
+    std::shared_ptr<Expr> lhs;
+    std::shared_ptr<Expr> rhs;
 
-    SubExpr(std::unique_ptr<Expr> x, std::unique_ptr<Expr> y) : lhs(std::move(x)), rhs(std::move(y)) {}
+    SubExpr(std::shared_ptr<Expr> x, std::shared_ptr<Expr> y) : lhs(std::move(x)), rhs(std::move(y)) {}
     SubExpr(SubExpr &&r) noexcept: lhs(std::move(r.lhs)), rhs(std::move(r.rhs)) {}
 
     int calc() override { return lhs->calc() - rhs->calc(); }
 };
 
 struct TermExpr : public Expr {
-    std::unique_ptr<Term> term;
+    std::shared_ptr<Term> term;
 
-    explicit TermExpr(std::unique_ptr<Term> x) : term(std::move(x)) {}
+    explicit TermExpr(std::shared_ptr<Term> x) : term(std::move(x)) {}
 
     int calc() override { return term->calc(); }
 };
 
 struct MulTerm : public Term {
-    std::unique_ptr<Term> lhs;
-    std::unique_ptr<Term> rhs;
+    std::shared_ptr<Term> lhs;
+    std::shared_ptr<Term> rhs;
 
-    MulTerm(std::unique_ptr<Term> x, std::unique_ptr<Term> y) : lhs(std::move(x)), rhs(std::move(y)) {}
+    MulTerm(std::shared_ptr<Term> x, std::shared_ptr<Term> y) : lhs(std::move(x)), rhs(std::move(y)) {}
 
     int calc() override { return lhs->calc() * rhs->calc(); }
 };
 
 struct DivTerm : public Term {
-    std::unique_ptr<Term> lhs;
-    std::unique_ptr<Term> rhs;
+    std::shared_ptr<Term> lhs;
+    std::shared_ptr<Term> rhs;
 
-    DivTerm(std::unique_ptr<Term> x, std::unique_ptr<Term> y) : lhs(std::move(x)), rhs(std::move(y)) {}
+    DivTerm(std::shared_ptr<Term> x, std::shared_ptr<Term> y) : lhs(std::move(x)), rhs(std::move(y)) {}
 
     int calc() override { return lhs->calc() / rhs->calc(); }
 };
 
 struct NumberTerm : public Term {
-    std::unique_ptr<Number> number;
+    std::shared_ptr<Number> number;
 
-    explicit NumberTerm(std::unique_ptr<Number> x) : number(std::move(x)) {}
+    explicit NumberTerm(std::shared_ptr<Number> x) : number(std::move(x)) {}
 
     int calc() override { return number->calc(); }
 };

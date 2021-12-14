@@ -17,3 +17,12 @@ add_executable(delegate-to-class
 
 add_executable(std-move-semantics
     move_semantics.cc)
+
+add_executable(std-cast
+    cast.cc)
+
+add_executable(std-class-tutorial
+    class-tutorial.cc)
+
+add_executable(std-shared-ptr
+    shared-ptr.cc)
