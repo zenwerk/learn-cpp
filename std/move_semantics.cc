@@ -1,4 +1,4 @@
-#include <iostream>
+﻿#include <iostream>
 #include <memory>
 
 
@@ -11,13 +11,13 @@ struct Point {
     Point(int *x_, int *y_) : x(x_), y(y_) {}
 
     Point(Point &&r) noexcept: x(r.x), y(r.y) {
-        std::cout << "call move constructor" << std::endl;
+        std::cout << "Call move constructor: " << __FUNCTION__ << std::endl;
         r.x = nullptr;
         r.y = nullptr;
     }
 
     Point &operator=(Point &&r) noexcept {
-        std::cout << "call move assign operator" << std::endl;
+        std::cout << "Call move assign operator: " << __FUNCTION__ << std::endl;
         this->x = r.x;
         this->y = r.y;
         r.x = nullptr;
@@ -31,6 +31,7 @@ struct Point {
         std::cout << "-----------------------" << std::endl;
     }
 
+    // コピー演算を削除する
     Point(const Point &) = delete;
 
     Point operator=(const Point &) = delete;
@@ -53,11 +54,11 @@ void pointExample() {
         std::cout << "Point p2 was moved" << std::endl;
     p3.print();
 
-    // does not call move constructor
+    // 右辺値参照で受け取るとムーブコンストラクタは呼ばれない
     Point &&p4 = std::move(p3);
     p4.print();
 
-    // call move assign operator
+    // ムーブ代入が呼ばれる
     p4 = Point(&x, &y);
     p4.print();
 }
@@ -69,11 +70,11 @@ struct U {
     explicit U(int&& val_) noexcept : val(std::make_unique<int>(val_)) {}
 
     U(U &&r) noexcept: val(std::move(r.val)) {
-        std::cout << "call move constructor" << std::endl;
+        std::cout << "Call move constructor: " << __FUNCTION__ << std::endl;
     }
 
     U &operator=(U &&r) noexcept {
-        std::cout << "call move assign operator" << std::endl;
+        std::cout << "Call move assign operator: " << __FUNCTION__ << std::endl;
         this->val = std::move(r.val);
         return *this;
     }
@@ -92,26 +93,30 @@ void uExample() {
 
     U u2 = std::move(u1);
     u2.print();
-    u1.print();
+    u1.print(); // ムーブされているので `val was moved`
 
+    // 右辺値参照で受け取ると u3 と u2 は同じものを指す
     U &&u3 = std::move(u2);
     u3.print();
     u2.print();
 
+    // u3 = u2 なので print() の値も両方とも `2` に変わる
     u3 = U(std::make_unique<int>(2));
     u3.print();
     u2.print();
 
+    // `U`構造体の unique_ptr を作成する
     auto a = std::make_unique<U>(U{std::make_unique<int>(3)});
     a->print();
     std::unique_ptr<U> b;
     b = std::move(a);
     b->print();
     if (a) {
-        std::cout << "foo" << std::endl;
+        std::cout << "a はムーブされていない" << std::endl;
         a->print();
     }
 
+    // `U`のunique_ptr の中の val だけ move する、なんてこともできる
     auto bval = std::move(b->val);
     std::cout << *bval << std::endl;
 
@@ -125,11 +130,17 @@ void foo(int* ptr) {
     *ptr = 999;
 }
 
+void bar(std::unique_ptr<int>& up) {
+    *up = 100;
+}
+
 void smartPointer() {
     auto a = std::make_unique<int>(0);
     std::cout << "------------------" << std::endl;
     std::cout << *a << std::endl;
     foo(a.get());
+    std::cout << *a << std::endl;
+    bar(a);
     std::cout << *a << std::endl;
 }
 

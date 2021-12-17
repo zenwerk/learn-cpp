@@ -31,8 +31,8 @@ struct Derived : Base {
 };
 
 
-void shared_ptr_static_cast() {
-    std::cout << "static_pointer_cast" <<std::endl;
+void shared_ptr_static_pointer_cast() {
+    std::cout << "=================\nstatic_pointer_cast\n=================\n";
 
     std::cout << "Base ==> Derived" <<std::endl;
     std::shared_ptr<Base> base1(new Base(1));
@@ -54,8 +54,8 @@ void shared_ptr_static_cast() {
     }
 }
 
-void shared_ptr_dynamic_cast() {
-    std::cout << "dynamic_pointer_cast" <<std::endl;
+void shared_ptr_dynamic_pointer_cast() {
+    std::cout << "===================\ndynamic_pointer_cast\n===================\n";
     std::shared_ptr<Derived> derived1(new Derived(1));
     std::shared_ptr<Base> base1 = std::static_pointer_cast<Base>(derived1);
 
@@ -82,9 +82,63 @@ void shared_ptr_dynamic_cast() {
     }
 }
 
+void unique_ptr_cast() {
+    std::cout << "=====================\nunique_ptr_cast()\n=====================\n";
+    {
+        // Base -> Derived
+        auto base = std::make_unique<Base>(1);
+        std::unique_ptr<Derived> derived;
+        if (auto result = dynamic_cast<Derived*>(base.get())) {
+            base.release();
+            derived.reset(result);
+        } else {
+            std::cout << "Failed: dynamic_cast<Derived*>(base.get())" << std::endl;
+        }
+        if (derived) derived->print();
+    }
+    {
+        // Derived -> Base
+        auto derived = std::make_unique<Derived>(2);
+        std::unique_ptr<Base> base;
+        if (auto result = dynamic_cast<Base*>(derived.get())) {
+            derived.release();
+            base.reset(result);
+        } else {
+            std::cout << "Failed: dynamic_cast<Base*>(derived.get())" << std::endl;
+        }
+        if (base) base->print();
+    }
+    {
+        // Base -> Derived
+        auto base = std::make_unique<Base>(1);
+        std::unique_ptr<Derived> derived;
+        if (auto result = static_cast<Derived*>(base.get())) {
+            base.release();
+            derived.reset(result);
+        } else {
+            std::cout << "Failed: static_cast<Derived*>(base.get())" << std::endl;
+        }
+        if (derived) derived->print();
+    }
+    {
+        // Derived -> Base
+        auto derived = std::make_unique<Derived>(2);
+        std::unique_ptr<Base> base;
+        if (auto result = static_cast<Base*>(derived.get())) {
+            derived.release();
+            base.reset(result);
+        } else {
+            std::cout << "Failed: static_cast<Base*>(derived.get())" << std::endl;
+        }
+        if (base) base->print();
+    }
+}
+
 int main() {
-    shared_ptr_static_cast();
-    shared_ptr_dynamic_cast();
+    shared_ptr_static_pointer_cast();
+    shared_ptr_dynamic_pointer_cast();
+
+    unique_ptr_cast();
 
     return 0;
 }
