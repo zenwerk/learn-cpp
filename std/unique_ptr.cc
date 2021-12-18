@@ -4,7 +4,6 @@
 
 // unique_ptr を関数やコンストラクタの引数に渡す方法
 void How_to_pass_unique_ptr() {
-    //=============================================================
     // Pass by Value
     {
         class Base {
@@ -132,9 +131,85 @@ void How_to_pass_unique_ptr() {
     }
 }
 
+// unique_ptr を使って ASTNode を作る
+struct Node {
+    virtual ~Node() = default;
+
+    virtual int calc() = 0;
+};
+
+struct Expr : public Node {
+};
+
+struct Term : public Node {
+};
+
+struct Number : public Node {
+    int number;
+
+    explicit Number(int n) : number(n) {}
+
+    int calc() override { return number; }
+};
+
+struct AddExpr : public Expr {
+    std::unique_ptr<Expr> lhs;
+    std::unique_ptr<Expr> rhs;
+
+    AddExpr(std::unique_ptr<Expr> x, std::unique_ptr<Expr> y) : lhs(std::move(x)), rhs(std::move(y)) {}
+
+    // Move constructor
+    AddExpr(AddExpr &&r) noexcept: lhs(std::move(r.lhs)), rhs(std::move(r.rhs)) {}
+
+    int calc() override { return lhs->calc() + rhs->calc(); }
+};
+
+struct TermExpr : public Expr {
+    std::unique_ptr<Term> term;
+
+    explicit TermExpr(std::unique_ptr<Term> x) : term(std::move(x)) {}
+
+    int calc() override { return term->calc(); }
+};
+
+struct NumberTerm : public Term {
+    std::unique_ptr<Number> number;
+
+    explicit NumberTerm(std::unique_ptr<Number> x) : number(std::move(x)) {}
+
+    int calc() override { return number->calc(); }
+};
+
+std::unique_ptr<Expr> MakeExpr(std::unique_ptr<Term> x) {
+    //return (std::unique_ptr<Expr> &&) x; // これでも動く
+    return std::make_unique<TermExpr>(std::move(x));
+}
+
+std::unique_ptr<Expr> MakeAdd(std::unique_ptr<Expr> x, std::unique_ptr<Term> y) {
+    auto expr = MakeExpr(std::move(y));
+    return std::make_unique<AddExpr>(std::move(x), std::move(expr));
+}
+
+void nodeTest() {
+    auto num1 = std::make_unique<NumberTerm>(std::make_unique<Number>(1));
+    auto num2 = std::make_unique<NumberTerm>(std::make_unique<Number>(2));
+
+    auto expr1 = MakeExpr(std::move(num1));
+    //auto expr2 = MakeExpr(std::move(num2));
+    //auto expr1 = std::make_unique<TermExpr>(std::move(num1));
+    //auto expr2 = std::make_unique<TermExpr>(std::move(num2));
+
+    //auto addExpr = std::make_unique<AddExpr>(std::move(expr1), std::move(expr2));
+    auto addExpr = MakeAdd(std::move(expr1), std::move(num2));
+    std::cout << addExpr->calc() << std::endl;
+}
+
+
 
 int main() {
     How_to_pass_unique_ptr();
+
+    nodeTest();
 
     return 0;
 }
