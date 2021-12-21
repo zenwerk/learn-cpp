@@ -204,6 +204,11 @@ void nodeTest() {
     std::cout << addExpr->calc() << std::endl;
 }
 
+void assign() {
+    auto num1 = std::make_unique<Number>(1);
+
+    std::move(num1);
+}
 
 
 int main() {

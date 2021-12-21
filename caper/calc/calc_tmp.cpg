@@ -1,13 +1,15 @@
-%token Number<std::shared_ptr<Number>> Add Sub Mul Div;
+%token Number<Number> Add Sub Mul Div;
 %namespace calc;
-%dont_use_stl;
+%smart_pointer<std::shared_ptr>;
 
-Expr<std::shared_ptr<Expr>> : [MakeExpr] Term(0)
-            | [MakeAdd] Expr(0) Add Term(1)
-            | [MakeSub] Expr(0) Sub Term(1)
-            ;
+Expr<Expr>
+    : [MakeExpr] Term(0)
+    | [MakeAdd] Expr(0) Add Term(1)
+    | [MakeSub] Expr(0) Sub Term(1)
+    ;
 
-Term<std::shared_ptr<Term>> : [MakeTerm] Number(0)
-            | [MakeMul] Term(0) Mul Number(1)
-            | [MakeDiv] Term(0) Div Number(1)
-            ;
+Term<Term>
+    : [MakeTerm] Number(0)
+    | [MakeMul] Term(0) Mul Number(1)
+    | [MakeDiv] Term(0) Div Number(1)
+    ;
