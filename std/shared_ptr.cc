@@ -46,6 +46,7 @@ void passing_shared_ptr() {
         else
             std::cout << "nullptr1" << std::endl;
     }
+
     {
         // This is not work !
         std::shared_ptr<Base> v;

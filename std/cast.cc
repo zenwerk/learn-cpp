@@ -26,7 +26,7 @@ struct Derived : Base {
     }
 
     void non_virtual_print() const {
-        std::cout << __FUNCTION__ << f << std::endl;
+        std::cout << __FUNCTION__ << ": " << f << std::endl;
     }
 };
 
@@ -34,58 +34,79 @@ struct Derived : Base {
 void shared_ptr_static_pointer_cast() {
     std::cout << "=================\nstatic_pointer_cast\n=================\n";
 
-    std::cout << "Base ==> Derived" <<std::endl;
-    std::shared_ptr<Base> base1(new Base(1));
-    std::shared_ptr<Derived> derived1 = std::static_pointer_cast<Derived>(base1);
-    if (base1 == derived1) {
-        base1->print();
-        derived1->print();
-        derived1->non_virtual_print();
+    // Case1
+    {
+        std::cout << "Base -> Derived" <<std::endl;
+        std::shared_ptr<Base> base(new Base(1));
+        std::shared_ptr<Derived> derived = std::static_pointer_cast<Derived>(base);
+        if (base == derived) {
+            base->print();
+            derived->print();
+            derived->non_virtual_print();
+        } else {
+            std::cout << "Case1: base != derived" << std::endl;
+        }
     }
 
-    std::cout << "Derived ===> Base" <<std::endl;
-    std::shared_ptr<Derived> derived2(new Derived(2));
-    std::shared_ptr<Base> base2 = std::static_pointer_cast<Base>(derived2);
-    derived2->f = 3.14;
-    if (derived2 == base2) {
-        derived2->print();
-        base2->print();
-        base2->non_virtual_print();
+    // Case2
+    {
+        std::cout << "Derived -> Base" <<std::endl;
+        std::shared_ptr<Derived> derived(new Derived(2));
+        std::shared_ptr<Base> base = std::static_pointer_cast<Base>(derived);
+        derived->f = 3.14;
+        if (derived == base) {
+            derived->print();
+            base->print();
+            base->non_virtual_print();
+        } else {
+            std::cout << "Case1: derived != base" << std::endl;
+        }
     }
 }
 
 void shared_ptr_dynamic_pointer_cast() {
     std::cout << "===================\ndynamic_pointer_cast\n===================\n";
-    std::shared_ptr<Derived> derived1(new Derived(1));
-    std::shared_ptr<Base> base1 = std::static_pointer_cast<Base>(derived1);
 
-    if (std::shared_ptr<Derived> result1 = std::dynamic_pointer_cast<Derived>(base1)) {
-        result1->f = 3.14;
-        result1->print();
-        result1->non_virtual_print();
-    } else {
-        std::cout << "fail result1" << std::endl;
+    // Case1
+    {
+        std::shared_ptr<Derived> derived(new Derived(1));
+        std::shared_ptr<Base> base = std::static_pointer_cast<Base>(derived);
+        if (std::shared_ptr<Derived> result = std::dynamic_pointer_cast<Derived>(base)) {
+            result->f = 3.14;
+            result->print();
+            result->non_virtual_print();
+        } else {
+            std::cout << "Case1 Failed: std::dynamic_pointer_cast<Derived>(Base)" << std::endl;
+        }
     }
 
-    if (std::shared_ptr<Base> result2 = std::dynamic_pointer_cast<Base>(derived1)) {
-        result2->print();
-    } else {
-        std::cout << "std::dynamic_pointer_cast<Base> Failed!" << std::endl;
+    // Case2
+    {
+        std::shared_ptr<Derived> derived(new Derived(1));
+        if (std::shared_ptr<Base> result2 = std::dynamic_pointer_cast<Base>(derived)) {
+            result2->print();
+        } else {
+            std::cout << "Case2 Failed: std::dynamic_pointer_cast<Base>(Derived)" << std::endl;
+        }
     }
 
-    std::shared_ptr<Base> base2(new Base(99));
-    if (std::shared_ptr<Derived> result3 = std::dynamic_pointer_cast<Derived>(base2)) {
-        result3->print();
-        result3->non_virtual_print();
-    } else {
-        std::cout << "std::dynamic_pointer_cast<Derived> Failed!" << std::endl;
+    // Case3
+    {
+        std::shared_ptr<Base> base(new Base(99));
+        if (std::shared_ptr<Derived> result = std::dynamic_pointer_cast<Derived>(base)) {
+            result->print();
+            result->non_virtual_print();
+        } else {
+            std::cout << "Case3 Failed: std::dynamic_pointer_cast<Derived>(Base)" << std::endl;
+        }
     }
 }
 
 void unique_ptr_cast() {
     std::cout << "=====================\nunique_ptr_cast()\n=====================\n";
+
+    // dynamic_cast: Base -> Derived
     {
-        // Base -> Derived
         auto base = std::make_unique<Base>(1);
         std::unique_ptr<Derived> derived;
         if (auto result = dynamic_cast<Derived*>(base.get())) {
@@ -96,8 +117,9 @@ void unique_ptr_cast() {
         }
         if (derived) derived->print();
     }
+
+    // dynamic_case: Derived -> Base
     {
-        // Derived -> Base
         auto derived = std::make_unique<Derived>(2);
         std::unique_ptr<Base> base;
         if (auto result = dynamic_cast<Base*>(derived.get())) {
@@ -108,8 +130,9 @@ void unique_ptr_cast() {
         }
         if (base) base->print();
     }
+
+    // static_cast: Base -> Derived
     {
-        // Base -> Derived
         auto base = std::make_unique<Base>(1);
         std::unique_ptr<Derived> derived;
         if (auto result = static_cast<Derived*>(base.get())) {
@@ -120,8 +143,9 @@ void unique_ptr_cast() {
         }
         if (derived) derived->print();
     }
+
+    // static_cast: Derived -> Base
     {
-        // Derived -> Base
         auto derived = std::make_unique<Derived>(2);
         std::unique_ptr<Base> base;
         if (auto result = static_cast<Base*>(derived.get())) {
