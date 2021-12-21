@@ -15,7 +15,7 @@ public:
 public:
     scanner(It b, It e) : b_(b), e_(e), c_(b), unget_(EOF) {}
 
-    calc::Token get(std::shared_ptr<Node> &v) {
+    calc::Token get(std::unique_ptr<Node> &v) {
         int c;
         do {
             c = getc();
@@ -44,7 +44,7 @@ public:
                 c = getc();
             }
             ungetc(c);
-            v = std::make_shared<Number>(n);
+            v = std::make_unique<Number>(n);
             return calc::token_Number;
         }
 
@@ -85,70 +85,54 @@ struct SemanticAction {
 
     void stack_overflow() {}
 
-    // パーサーの「値全体の集合を表す型」から具体的な Token の型へ変換する関数
-    // Node* から具体的な token の型<T>へ変換
+    // Base -> Derived
     template<class T>
-    void downcast(T &x, const std::shared_ptr<Node>& y) {
-        // TODO: std::shared_ptr<T> <- Node*
-        //x = y;
-    }
-    template<>
-    void downcast(std::shared_ptr<Term> &x, const std::shared_ptr<Node>& y) {
-        x = std::static_pointer_cast<Term>(y);
-    }
-    template<>
-    void downcast(std::shared_ptr<Expr> &x, const std::shared_ptr<Node>& y) {
-        x = std::static_pointer_cast<Expr>(y);
+    void downcast(std::unique_ptr<T> &x, const std::unique_ptr<Node> &&y) {
+        auto result = static_cast<T*>(y.get());
+        y.release();
+        x.reset(result);
     }
 
-    // Token の具体的な型からパーサーの「値全体の集合を表す型」へ変換する関数 (downcastの逆操作)
-    // 具体的なTokenの型<T>から Node* への変換
+    // Derived -> Base
     template<class T>
-    void upcast(std::shared_ptr<Node> &x, T &y) {
-        // TODO: Node* <- std::shared_ptr<T>
-        x = y;
+    void upcast(std::unique_ptr<Node> &x, std::unique_ptr<T> &&y) {
+        auto result = static_cast<Node*>(y.get());
+        y.release();
+        x.reset(result);
     }
 
     // TODO: アクションの定義
     // TODO: ASTノードを返すセマンティックアクションを定義する
-    std::shared_ptr<Expr> MakeExpr(const std::shared_ptr<Term> &x) {
-        return std::make_shared<TermExpr>(x);
+    std::unique_ptr<Expr> MakeExpr(std::unique_ptr<Term> x) {
+        return std::make_unique<TermExpr>(std::move(x));
     }
 
-    std::shared_ptr<Expr> MakeAdd(std::shared_ptr<Expr> &x, std::shared_ptr<Term> &y) {
+    std::unique_ptr<Expr> MakeAdd(std::unique_ptr<Expr> x, std::unique_ptr<Term> y) {
         std::cerr << "expr " << x << " + " << y << std::endl;
-        return std::make_shared<AddExpr>(
-            std::move(x),
-            std::make_shared<TermExpr>(y)
-        );
+        auto expr = MakeExpr(std::move(y));
+        return std::make_unique<AddExpr>(std::move(x), std::move(expr));
     }
 
-    std::shared_ptr<Expr> MakeSub(std::shared_ptr<Expr> &x, std::shared_ptr<Term> &y) {
+    std::unique_ptr<Expr> MakeSub(std::unique_ptr<Expr> x, std::unique_ptr<Term> y) {
         std::cerr << "expr " << x << " - " << y << std::endl;
-        return std::make_shared<SubExpr>(
-            std::move(x),
-            std::make_shared<TermExpr>(y)
-        );
+        auto expr = MakeExpr(std::move(y));
+        return std::make_unique<SubExpr>(std::move(x), std::move(expr));
     }
 
-    std::shared_ptr<Term> MakeTerm(std::shared_ptr<Number> &x) {
-        return std::make_shared<NumberTerm>(x);
+    std::unique_ptr<Term> MakeTerm(std::unique_ptr<Number> x) {
+        return std::make_unique<NumberTerm>(std::move(x));
     }
 
-    std::shared_ptr<Term> MakeMul(std::shared_ptr<Term> &x, std::shared_ptr<Number> &y) {
+    std::unique_ptr<Term> MakeMul(std::unique_ptr<Term> x, std::unique_ptr<Number> y) {
         std::cerr << "expr " << x << " * " << y << std::endl;
-        return std::make_shared<MulTerm>(
-            x,
-            std::make_shared<NumberTerm>(y)
-        );
+        auto term = std::make_unique<NumberTerm>(std::move(y));
+        return std::make_unique<MulTerm>(std::move(x), std::move(term));
     }
 
-    std::shared_ptr<Term> MakeDiv(std::shared_ptr<Term> &x, std::shared_ptr<Number> &y) {
+    std::unique_ptr<Term> MakeDiv(std::unique_ptr<Term> x, std::unique_ptr<Number> y) {
         std::cerr << "expr " << x << " / " << y << std::endl;
-        return std::make_shared<DivTerm>(
-            x,
-            std::make_shared<NumberTerm>(y)
-        );
+        auto term = std::make_unique<NumberTerm>(std::move(y));
+        return std::make_unique<DivTerm>(std::move(x), std::move(term));
     }
 };
 
@@ -165,17 +149,17 @@ int main() {
     // cpgファイルが示すように、各文法要素の型は`Node*`とは異なるので、それにあわせて変換が必要になる -> upcast/downcast
     // downcast = Node* → Expr*/Term*/Number* の変換
     // upcast は downcast の逆操作
-    calc::Parser<std::shared_ptr<Node>, SemanticAction> parser(sa);
+    calc::Parser<std::unique_ptr<Node>, SemanticAction> parser(sa);
 
     calc::Token token;
     for (;;) {
-        std::shared_ptr<Node> v;
+        std::unique_ptr<Node> v;
         token = s.get(v); // ここは変えれる
 
         if (parser.post(token, v)) { break; }
     }
 
-    std::shared_ptr<Node> v;
+    std::unique_ptr<Node> v;
     if (parser.accept(v)) {
         std::cerr << "accpeted\n";
         std::cerr << v->calc() << std::endl;
