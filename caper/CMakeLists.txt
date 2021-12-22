@@ -30,4 +30,7 @@ add_executable(caper-hello5
 add_executable(caper-hello6
     hello6.cc)
 
+add_executable(caper-hello7-shared-ptr
+    hello7_shared_ptr.cc)
+
 add_subdirectory(calc)
