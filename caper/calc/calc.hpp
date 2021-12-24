@@ -12,21 +12,27 @@ namespace calc {
 
 enum Token {
     token_eof,
-    token_Add,
-    token_Div,
-    token_Mul,
+    token_ADD,
+    token_DIV,
+    token_LP,
+    token_MUL,
+    token_NL,
     token_Number,
-    token_Sub,
+    token_RP,
+    token_SUB,
 };
 
 inline const char* token_label(Token t) {
     static const char* labels[] = {
         "token_eof",
-        "token_Add",
-        "token_Div",
-        "token_Mul",
+        "token_ADD",
+        "token_DIV",
+        "token_LP",
+        "token_MUL",
+        "token_NL",
         "token_Number",
-        "token_Sub",
+        "token_RP",
+        "token_SUB",
     };
     return labels[t];
 }
@@ -137,6 +143,9 @@ public:
 
     enum Nonterminal {
         Nonterminal_Expr,
+        Nonterminal_Factor,
+        Nonterminal_Literal,
+        Nonterminal_Start,
         Nonterminal_Term,
     };
 
@@ -249,8 +258,53 @@ private:
         return push_stack(dest_index, value_type());
     }
 
-    bool call_0_MakeTerm(Nonterminal nonterminal, int base, int arg_index0) {
+    bool call_0_ReturnExpr(Nonterminal nonterminal, int base, int arg_index0) {
+        std::shared_ptr<Expr> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
+        std::shared_ptr<Expr> r = sa_.ReturnExpr(arg0);
+        value_type v; sa_.upcast(v, r);
+        pop_stack(base);
+        int dest_index = (this->*(stack_top()->entry->gotof))(nonterminal);
+        return push_stack(dest_index, v);
+    }
+
+    bool call_0_MakeUminus(Nonterminal nonterminal, int base, int arg_index0) {
+        std::shared_ptr<Factor> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
+        std::shared_ptr<Factor> r = sa_.MakeUminus(arg0);
+        value_type v; sa_.upcast(v, r);
+        pop_stack(base);
+        int dest_index = (this->*(stack_top()->entry->gotof))(nonterminal);
+        return push_stack(dest_index, v);
+    }
+
+    bool call_0_MakeFactor(Nonterminal nonterminal, int base, int arg_index0) {
+        std::shared_ptr<Literal> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
+        std::shared_ptr<Factor> r = sa_.MakeFactor(arg0);
+        value_type v; sa_.upcast(v, r);
+        pop_stack(base);
+        int dest_index = (this->*(stack_top()->entry->gotof))(nonterminal);
+        return push_stack(dest_index, v);
+    }
+
+    bool call_0_MakeNestedExpr(Nonterminal nonterminal, int base, int arg_index0) {
+        std::shared_ptr<Expr> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
+        std::shared_ptr<Literal> r = sa_.MakeNestedExpr(arg0);
+        value_type v; sa_.upcast(v, r);
+        pop_stack(base);
+        int dest_index = (this->*(stack_top()->entry->gotof))(nonterminal);
+        return push_stack(dest_index, v);
+    }
+
+    bool call_0_MakeNumber(Nonterminal nonterminal, int base, int arg_index0) {
         std::shared_ptr<Number> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
+        std::shared_ptr<Literal> r = sa_.MakeNumber(arg0);
+        value_type v; sa_.upcast(v, r);
+        pop_stack(base);
+        int dest_index = (this->*(stack_top()->entry->gotof))(nonterminal);
+        return push_stack(dest_index, v);
+    }
+
+    bool call_0_MakeTerm(Nonterminal nonterminal, int base, int arg_index0) {
+        std::shared_ptr<Factor> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
         std::shared_ptr<Term> r = sa_.MakeTerm(arg0);
         value_type v; sa_.upcast(v, r);
         pop_stack(base);
@@ -260,7 +314,7 @@ private:
 
     bool call_0_MakeDiv(Nonterminal nonterminal, int base, int arg_index0, int arg_index1) {
         std::shared_ptr<Term> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
-        std::shared_ptr<Number> arg1; sa_.downcast(arg1, get_arg(base, arg_index1));
+        std::shared_ptr<Factor> arg1; sa_.downcast(arg1, get_arg(base, arg_index1));
         std::shared_ptr<Term> r = sa_.MakeDiv(arg0, arg1);
         value_type v; sa_.upcast(v, r);
         pop_stack(base);
@@ -270,7 +324,7 @@ private:
 
     bool call_0_MakeMul(Nonterminal nonterminal, int base, int arg_index0, int arg_index1) {
         std::shared_ptr<Term> arg0; sa_.downcast(arg0, get_arg(base, arg_index0));
-        std::shared_ptr<Number> arg1; sa_.downcast(arg1, get_arg(base, arg_index1));
+        std::shared_ptr<Factor> arg1; sa_.downcast(arg1, get_arg(base, arg_index1));
         std::shared_ptr<Term> r = sa_.MakeMul(arg0, arg1);
         value_type v; sa_.upcast(v, r);
         pop_stack(base);
@@ -309,9 +363,17 @@ private:
 
     bool state_0(token_type token, const value_type& value) {
         switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
         case token_Number:
             // shift
-            push_stack(/*state*/ 7, value);
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
             return false;
         default:
             sa_.syntax_error();
@@ -322,8 +384,11 @@ private:
 
     int gotof_0(Nonterminal nonterminal) {
         switch(nonterminal) {
-        case Nonterminal_Term: return 2;
-        case Nonterminal_Expr: return 1;
+        case Nonterminal_Start: return 1;
+        case Nonterminal_Factor: return 10;
+        case Nonterminal_Literal: return 16;
+        case Nonterminal_Term: return 4;
+        case Nonterminal_Expr: return 2;
         default: assert(0); return false;
         }
     }
@@ -334,14 +399,6 @@ private:
             // accept
             accepted_ = true;
             accepted_value_ = get_arg(1, 0);
-            return false;
-        case token_Add:
-            // shift
-            push_stack(/*state*/ 3, value);
-            return false;
-        case token_Sub:
-            // shift
-            push_stack(/*state*/ 5, value);
             return false;
         default:
             sa_.syntax_error();
@@ -357,19 +414,17 @@ private:
 
     bool state_2(token_type token, const value_type& value) {
         switch(token) {
-        case token_Div:
+        case token_ADD:
             // shift
-            push_stack(/*state*/ 10, value);
+            push_stack(/*state*/ 6, value);
             return false;
-        case token_Mul:
+        case token_SUB:
             // shift
             push_stack(/*state*/ 8, value);
             return false;
         case token_eof:
-        case token_Add:
-        case token_Sub:
             // reduce
-            return call_0_MakeExpr(Nonterminal_Expr, /*pop*/ 1, 0);
+            return call_0_ReturnExpr(Nonterminal_Start, /*pop*/ 1, 0);
         default:
             sa_.syntax_error();
             error_ = true;
@@ -384,9 +439,17 @@ private:
 
     bool state_3(token_type token, const value_type& value) {
         switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
         case token_Number:
             // shift
-            push_stack(/*state*/ 7, value);
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
             return false;
         default:
             sa_.syntax_error();
@@ -397,26 +460,30 @@ private:
 
     int gotof_3(Nonterminal nonterminal) {
         switch(nonterminal) {
+        case Nonterminal_Factor: return 10;
+        case Nonterminal_Literal: return 16;
         case Nonterminal_Term: return 4;
+        case Nonterminal_Expr: return 5;
         default: assert(0); return false;
         }
     }
 
     bool state_4(token_type token, const value_type& value) {
         switch(token) {
-        case token_Div:
+        case token_DIV:
             // shift
-            push_stack(/*state*/ 10, value);
+            push_stack(/*state*/ 13, value);
             return false;
-        case token_Mul:
+        case token_MUL:
             // shift
-            push_stack(/*state*/ 8, value);
+            push_stack(/*state*/ 11, value);
             return false;
         case token_eof:
-        case token_Add:
-        case token_Sub:
+        case token_ADD:
+        case token_RP:
+        case token_SUB:
             // reduce
-            return call_0_MakeAdd(Nonterminal_Expr, /*pop*/ 3, 0, 2);
+            return call_0_MakeExpr(Nonterminal_Expr, /*pop*/ 1, 0);
         default:
             sa_.syntax_error();
             error_ = true;
@@ -431,9 +498,17 @@ private:
 
     bool state_5(token_type token, const value_type& value) {
         switch(token) {
-        case token_Number:
+        case token_ADD:
             // shift
-            push_stack(/*state*/ 7, value);
+            push_stack(/*state*/ 6, value);
+            return false;
+        case token_RP:
+            // shift
+            push_stack(/*state*/ 19, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 8, value);
             return false;
         default:
             sa_.syntax_error();
@@ -443,27 +518,24 @@ private:
     }
 
     int gotof_5(Nonterminal nonterminal) {
-        switch(nonterminal) {
-        case Nonterminal_Term: return 6;
-        default: assert(0); return false;
-        }
+        assert(0);
+        return true;
     }
 
     bool state_6(token_type token, const value_type& value) {
         switch(token) {
-        case token_Div:
+        case token_LP:
             // shift
-            push_stack(/*state*/ 10, value);
+            push_stack(/*state*/ 3, value);
             return false;
-        case token_Mul:
+        case token_Number:
             // shift
-            push_stack(/*state*/ 8, value);
+            push_stack(/*state*/ 18, value);
             return false;
-        case token_eof:
-        case token_Add:
-        case token_Sub:
-            // reduce
-            return call_0_MakeSub(Nonterminal_Expr, /*pop*/ 3, 0, 2);
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
+            return false;
         default:
             sa_.syntax_error();
             error_ = true;
@@ -472,19 +544,30 @@ private:
     }
 
     int gotof_6(Nonterminal nonterminal) {
-        assert(0);
-        return true;
+        switch(nonterminal) {
+        case Nonterminal_Factor: return 10;
+        case Nonterminal_Literal: return 16;
+        case Nonterminal_Term: return 7;
+        default: assert(0); return false;
+        }
     }
 
     bool state_7(token_type token, const value_type& value) {
         switch(token) {
+        case token_DIV:
+            // shift
+            push_stack(/*state*/ 13, value);
+            return false;
+        case token_MUL:
+            // shift
+            push_stack(/*state*/ 11, value);
+            return false;
         case token_eof:
-        case token_Add:
-        case token_Div:
-        case token_Mul:
-        case token_Sub:
+        case token_ADD:
+        case token_RP:
+        case token_SUB:
             // reduce
-            return call_0_MakeTerm(Nonterminal_Term, /*pop*/ 1, 0);
+            return call_0_MakeAdd(Nonterminal_Expr, /*pop*/ 3, 0, 2);
         default:
             sa_.syntax_error();
             error_ = true;
@@ -499,9 +582,17 @@ private:
 
     bool state_8(token_type token, const value_type& value) {
         switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
         case token_Number:
             // shift
-            push_stack(/*state*/ 9, value);
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
             return false;
         default:
             sa_.syntax_error();
@@ -511,19 +602,30 @@ private:
     }
 
     int gotof_8(Nonterminal nonterminal) {
-        assert(0);
-        return true;
+        switch(nonterminal) {
+        case Nonterminal_Factor: return 10;
+        case Nonterminal_Literal: return 16;
+        case Nonterminal_Term: return 9;
+        default: assert(0); return false;
+        }
     }
 
     bool state_9(token_type token, const value_type& value) {
         switch(token) {
+        case token_DIV:
+            // shift
+            push_stack(/*state*/ 13, value);
+            return false;
+        case token_MUL:
+            // shift
+            push_stack(/*state*/ 11, value);
+            return false;
         case token_eof:
-        case token_Add:
-        case token_Div:
-        case token_Mul:
-        case token_Sub:
+        case token_ADD:
+        case token_RP:
+        case token_SUB:
             // reduce
-            return call_0_MakeMul(Nonterminal_Term, /*pop*/ 3, 0, 2);
+            return call_0_MakeSub(Nonterminal_Expr, /*pop*/ 3, 0, 2);
         default:
             sa_.syntax_error();
             error_ = true;
@@ -538,10 +640,14 @@ private:
 
     bool state_10(token_type token, const value_type& value) {
         switch(token) {
-        case token_Number:
-            // shift
-            push_stack(/*state*/ 11, value);
-            return false;
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeTerm(Nonterminal_Term, /*pop*/ 1, 0);
         default:
             sa_.syntax_error();
             error_ = true;
@@ -556,11 +662,92 @@ private:
 
     bool state_11(token_type token, const value_type& value) {
         switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
+        case token_Number:
+            // shift
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
+            return false;
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_11(Nonterminal nonterminal) {
+        switch(nonterminal) {
+        case Nonterminal_Factor: return 12;
+        case Nonterminal_Literal: return 16;
+        default: assert(0); return false;
+        }
+    }
+
+    bool state_12(token_type token, const value_type& value) {
+        switch(token) {
         case token_eof:
-        case token_Add:
-        case token_Div:
-        case token_Mul:
-        case token_Sub:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeMul(Nonterminal_Term, /*pop*/ 3, 0, 2);
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_12(Nonterminal nonterminal) {
+        assert(0);
+        return true;
+    }
+
+    bool state_13(token_type token, const value_type& value) {
+        switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
+        case token_Number:
+            // shift
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
+            return false;
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_13(Nonterminal nonterminal) {
+        switch(nonterminal) {
+        case Nonterminal_Factor: return 14;
+        case Nonterminal_Literal: return 16;
+        default: assert(0); return false;
+        }
+    }
+
+    bool state_14(token_type token, const value_type& value) {
+        switch(token) {
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
             // reduce
             return call_0_MakeDiv(Nonterminal_Term, /*pop*/ 3, 0, 2);
         default:
@@ -570,7 +757,124 @@ private:
         }
     }
 
-    int gotof_11(Nonterminal nonterminal) {
+    int gotof_14(Nonterminal nonterminal) {
+        assert(0);
+        return true;
+    }
+
+    bool state_15(token_type token, const value_type& value) {
+        switch(token) {
+        case token_LP:
+            // shift
+            push_stack(/*state*/ 3, value);
+            return false;
+        case token_Number:
+            // shift
+            push_stack(/*state*/ 18, value);
+            return false;
+        case token_SUB:
+            // shift
+            push_stack(/*state*/ 15, value);
+            return false;
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_15(Nonterminal nonterminal) {
+        switch(nonterminal) {
+        case Nonterminal_Factor: return 17;
+        case Nonterminal_Literal: return 16;
+        default: assert(0); return false;
+        }
+    }
+
+    bool state_16(token_type token, const value_type& value) {
+        switch(token) {
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeFactor(Nonterminal_Factor, /*pop*/ 1, 0);
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_16(Nonterminal nonterminal) {
+        assert(0);
+        return true;
+    }
+
+    bool state_17(token_type token, const value_type& value) {
+        switch(token) {
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeUminus(Nonterminal_Factor, /*pop*/ 2, 1);
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_17(Nonterminal nonterminal) {
+        assert(0);
+        return true;
+    }
+
+    bool state_18(token_type token, const value_type& value) {
+        switch(token) {
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeNumber(Nonterminal_Literal, /*pop*/ 1, 0);
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_18(Nonterminal nonterminal) {
+        assert(0);
+        return true;
+    }
+
+    bool state_19(token_type token, const value_type& value) {
+        switch(token) {
+        case token_eof:
+        case token_ADD:
+        case token_DIV:
+        case token_MUL:
+        case token_RP:
+        case token_SUB:
+            // reduce
+            return call_0_MakeNestedExpr(Nonterminal_Literal, /*pop*/ 3, 1);
+        default:
+            sa_.syntax_error();
+            error_ = true;
+            return false;
+        }
+    }
+
+    int gotof_19(Nonterminal nonterminal) {
         assert(0);
         return true;
     }
@@ -589,6 +893,14 @@ private:
             { &Parser::state_9, &Parser::gotof_9, false },
             { &Parser::state_10, &Parser::gotof_10, false },
             { &Parser::state_11, &Parser::gotof_11, false },
+            { &Parser::state_12, &Parser::gotof_12, false },
+            { &Parser::state_13, &Parser::gotof_13, false },
+            { &Parser::state_14, &Parser::gotof_14, false },
+            { &Parser::state_15, &Parser::gotof_15, false },
+            { &Parser::state_16, &Parser::gotof_16, false },
+            { &Parser::state_17, &Parser::gotof_17, false },
+            { &Parser::state_18, &Parser::gotof_18, false },
+            { &Parser::state_19, &Parser::gotof_19, false },
         };
         return &entries[n];
     }

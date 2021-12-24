@@ -102,46 +102,54 @@ struct SemanticAction {
 
     // Semantic Actions
     std::shared_ptr<Expr> MakeExpr(std::shared_ptr<Term> x) {
+        std::cerr << "MakeExpr: " << x->str() << std::endl;
         auto te = new TermExpr;
         te->term = std::move(x);
+        std::cerr << "  MakeExpr: end" << std::endl;
         return std::shared_ptr<Expr>(te);
     }
 
     std::shared_ptr<Expr> MakeAdd(std::shared_ptr<Expr> x, std::shared_ptr<Term> y) {
-        std::cerr << "expr " << x << " + " << y << std::endl;
+        std::cerr << "MakeAdd: " << x->str() << " + " << y->str() << std::endl;
         auto add = new AddExpr;
         add->lhs = x;
         add->rhs = MakeExpr(y);
+        std::cerr << "  MakeAdd: end" << std::endl;
         return std::shared_ptr<Expr>(add);
     }
 
     std::shared_ptr<Expr> MakeSub(std::shared_ptr<Expr> x, std::shared_ptr<Term> y) {
-        std::cerr << "expr " << x << " - " << y << std::endl;
+        std::cerr << "MakeSub: " << x->str() << " - " << y->str() << std::endl;
         auto sub = new SubExpr;
         sub->lhs = x;
         sub->rhs = MakeExpr(y);
+        std::cerr << "  MakeSub: end" << std::endl;
         return std::shared_ptr<Expr>(sub);
     }
 
     std::shared_ptr<Term> MakeTerm(std::shared_ptr<Number> x) {
+        std::cerr << "MakeTerm: " << x->str() << std::endl;
         auto nt = new NumberTerm;
         nt->number = std::move(x);
+        std::cerr << "  MakeTerm: end" << std::endl;
         return std::shared_ptr<Term>(nt);
     }
 
     std::shared_ptr<Term> MakeMul(std::shared_ptr<Term> x, std::shared_ptr<Number> y) {
-        std::cerr << "expr " << x << " * " << y << std::endl;
+        std::cerr << "MakeMul: " << x->str() << " * " << y->str() << std::endl;
         auto mul = new MulTerm;
         mul->lhs = x;
         mul->rhs = MakeTerm(y);
+        std::cerr << "  MakeMul: end" << std::endl;
         return std::shared_ptr<Term>(mul);
     }
 
     std::shared_ptr<Term> MakeDiv(std::shared_ptr<Term> x, std::shared_ptr<Number> y) {
-        std::cerr << "expr " << x << " / " << y << std::endl;
+        std::cerr << "MakeDiv " << x->str() << " / " << y->str() << std::endl;
         auto div = new DivTerm;
         div->lhs = x;
         div->rhs = MakeTerm(y);
+        std::cerr << "  MakeDiv: end" << std::endl;
         return std::shared_ptr<Term>(div);
     }
 };
@@ -164,7 +172,7 @@ int main() {
     calc::Token token;
     for (;;) {
         std::shared_ptr<Node> v;
-        token = s.get(v); // ここは変えれる
+        token = s.get(v);
 
         if (parser.post(token, v)) { break; }
     }
@@ -172,6 +180,7 @@ int main() {
     std::shared_ptr<Node> v;
     if (parser.accept(v)) {
         std::cerr << "accpeted\n";
+        std::cerr << v->str() << std::endl;
         std::cerr << v->calc() << std::endl;
         std::cerr << "exit\n";
     }

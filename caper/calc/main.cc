@@ -25,15 +25,23 @@ public:
         // 記号類
         switch (c) {
             case '+':
-                return calc::token_Add;
+                return calc::token_ADD;
             case '-':
-                return calc::token_Sub;
+                return calc::token_SUB;
             case '*':
-                return calc::token_Mul;
+                return calc::token_MUL;
             case '/':
-                return calc::token_Div;
+                return calc::token_DIV;
+            case '(':
+                return calc::token_LP;
+            case ')':
+                return calc::token_RP;
+            case '\n':
+                return calc::token_NL;
             case EOF:
                 return calc::token_eof;
+            default:
+                ; // noop
         }
 
         // 整数
@@ -90,7 +98,12 @@ struct SemanticAction {
     template <typename T>
     void downcast(std::shared_ptr<T>& x, const std::shared_ptr<Node>& y)
     {
-        x = std::dynamic_pointer_cast<T, Node>(y);
+        if (auto result = std::dynamic_pointer_cast<T, Node>(y)) {
+            x = result;
+        } else {
+            std::cerr << "Failed: dynamic_pointer_cast<T, Node>(y)" << std::endl;
+            exit(1);
+        }
     }
 
     // Derived -> Base
@@ -100,50 +113,93 @@ struct SemanticAction {
         x = std::static_pointer_cast<Node, T>(y);
     }
 
-    // TODO: アクションの定義
-    // TODO: ASTノードを返すセマンティックアクションを定義する
+    // Semantic Actions
     std::shared_ptr<Expr> MakeExpr(std::shared_ptr<Term> x) {
+        std::cerr << "MakeExpr: " << x->str() << std::endl;
         auto te = new TermExpr;
-        te->term = std::move(x);
+        te->term = x;
+        std::cerr << "  end: MakeExpr" << std::endl;
         return std::shared_ptr<Expr>(te);
     }
 
     std::shared_ptr<Expr> MakeAdd(std::shared_ptr<Expr> x, std::shared_ptr<Term> y) {
-        std::cerr << "expr " << x << " + " << y << std::endl;
+        std::cerr << "MakeAdd " << x->str() << " + " << y->str() << std::endl;
         auto add = new AddExpr;
         add->lhs = x;
         add->rhs = MakeExpr(y);
+        std::cerr << "  end: MakeAdd" << std::endl;
         return std::shared_ptr<Expr>(add);
     }
 
     std::shared_ptr<Expr> MakeSub(std::shared_ptr<Expr> x, std::shared_ptr<Term> y) {
-        std::cerr << "expr " << x << " - " << y << std::endl;
+        std::cerr << "MakeSub " << x->str() << " - " << y->str() << std::endl;
         auto sub = new SubExpr;
         sub->lhs = x;
         sub->rhs = MakeExpr(y);
+        std::cerr << "  end: MakeSub" << std::endl;
         return std::shared_ptr<Expr>(sub);
     }
 
-    std::shared_ptr<Term> MakeTerm(std::shared_ptr<Number> x) {
-        auto nt = new NumberTerm;
-        nt->number = std::move(x);
+    std::shared_ptr<Term> MakeTerm(std::shared_ptr<Factor> x) {
+        std::cerr << "MakeTerm " << x->str() << std::endl;
+        auto nt = new FactorTerm;
+        nt->factor = x;
+        std::cerr << "  end: MakeTerm" << std::endl;
         return std::shared_ptr<Term>(nt);
     }
 
-    std::shared_ptr<Term> MakeMul(std::shared_ptr<Term> x, std::shared_ptr<Number> y) {
-        std::cerr << "expr " << x << " * " << y << std::endl;
+    std::shared_ptr<Term> MakeMul(std::shared_ptr<Term> x, std::shared_ptr<Factor> y) {
+        std::cerr << "MakeMul " << x->str() << " * " << y->str() << std::endl;
         auto mul = new MulTerm;
         mul->lhs = x;
         mul->rhs = MakeTerm(y);
+        std::cerr << "  end: MakeMul" << std::endl;
         return std::shared_ptr<Term>(mul);
     }
 
-    std::shared_ptr<Term> MakeDiv(std::shared_ptr<Term> x, std::shared_ptr<Number> y) {
-        std::cerr << "expr " << x << " / " << y << std::endl;
+    std::shared_ptr<Term> MakeDiv(std::shared_ptr<Term> x, std::shared_ptr<Factor> y) {
+        std::cerr << "MakeDiv " << x->str() << " / " << y->str() << std::endl;
         auto div = new DivTerm;
         div->lhs = x;
         div->rhs = MakeTerm(y);
+        std::cerr << "  end: MakeDiv" << std::endl;
         return std::shared_ptr<Term>(div);
+    }
+
+    std::shared_ptr<Factor> MakeFactor(std::shared_ptr<Literal> x) {
+        std::cerr << "MakeFactor " << x->str() << std::endl;
+        auto factor = new LiteralFactor;
+        factor->literal = x;
+        std::cerr << "  end: MakeFactor" << std::endl;
+        return std::shared_ptr<Factor>(factor);
+    }
+
+    std::shared_ptr<Factor> MakeUminus(std::shared_ptr<Factor> x) {
+        std::cerr << "MakeUminus " << x->str() << std::endl;
+        auto uminus = new UMinusFactor;
+        uminus->factor = x;
+        std::cerr << "  end: MakeUminus" << std::endl;
+        return std::shared_ptr<Factor>(uminus);
+    }
+
+    std::shared_ptr<Literal> MakeNumber(std::shared_ptr<Number> x) {
+        std::cerr << "MakeNumber " << x->str() << std::endl;
+        auto number = new NumberLiteral;
+        number->number = x;
+        std::cerr << "  end: MakeNumber" << std::endl;
+        return std::shared_ptr<Literal>(number);
+    }
+
+    std::shared_ptr<Literal> MakeNestedExpr(std::shared_ptr<Expr> x) {
+        std::cerr << "MakeNextedExpr " << x->str() << std::endl;
+        auto nestedExpr = new NestedExprLiteral;
+        nestedExpr->expr = x;
+        std::cerr << "  end: MakeNestedExpr" << std::endl;
+        return std::shared_ptr<Literal>(nestedExpr);
+    }
+
+    std::shared_ptr<Expr> ReturnExpr(std::shared_ptr<Expr> x) {
+        return x;
     }
 };
 
@@ -156,25 +212,22 @@ int main() {
 
     SemanticAction sa;
 
-    // 値全体の集合を表す型が `Node*`
-    // cpgファイルが示すように、各文法要素の型は`Node*`とは異なるので、それにあわせて変換が必要になる -> upcast/downcast
-    // downcast = Node* → Expr*/Term*/Number* の変換
-    // upcast は downcast の逆操作
     calc::Parser<std::shared_ptr<Node>, SemanticAction> parser(sa);
 
     calc::Token token;
     for (;;) {
         std::shared_ptr<Node> v;
-        token = s.get(v); // ここは変えれる
+        token = s.get(v);
 
         if (parser.post(token, v)) { break; }
     }
 
     std::shared_ptr<Node> v;
     if (parser.accept(v)) {
-        std::cerr << "accpeted\n";
+        std::cerr << "Accpeted\n";
+        std::cerr << v->str() << std::endl;
         std::cerr << v->calc() << std::endl;
-        std::cerr << "exit\n";
+        std::cerr << "Exit\n";
     }
 
     return 0;
