@@ -1,93 +1,11 @@
 ﻿#include <iostream>
 #include <memory>
 #include <utility>
-#include "calc_ast.h"
-#include "calc.hpp"
+//#include "calc_ast.h"
+//#include "calc.hpp"
 
+#include "lex.cc"
 
-class unexpected_char : public std::exception {
-};
-
-template<class It>
-class scanner {
-public:
-    typedef int char_type;
-
-public:
-    scanner(It b, It e) : b_(b), e_(e), c_(b), unget_(EOF) {}
-
-    calc::Token get(std::shared_ptr<Node> &v) {
-        int c;
-        do {
-            c = getc();
-        } while (isspace(c));
-
-        // 記号類
-        switch (c) {
-            case '+':
-                return calc::token_ADD;
-            case '-':
-                return calc::token_SUB;
-            case '*':
-                return calc::token_MUL;
-            case '/':
-                return calc::token_DIV;
-            case '(':
-                return calc::token_LP;
-            case ')':
-                return calc::token_RP;
-            case '\n':
-                return calc::token_NL;
-            case EOF:
-                return calc::token_eof;
-            default:
-                ; // noop
-        }
-
-        // 整数
-        if (isdigit(c)) {
-            int n = 0;
-            while (c != EOF && isdigit(c)) {
-                n *= 10;
-                n += c - '0';
-                c = getc();
-            }
-            ungetc(c);
-            v = std::make_shared<Number>(n);
-            return calc::token_Number;
-        }
-
-        std::cerr << char(c) << std::endl;
-        throw unexpected_char();
-    }
-
-private:
-    char_type getc() {
-        int c;
-        if (unget_ != EOF) {
-            c = unget_;
-            unget_ = EOF;
-        } else if (c_ == e_) {
-            c = EOF;
-        } else {
-            c = *c_++;
-        }
-        return c;
-    }
-
-    void ungetc(char_type c) {
-        if (c != EOF) {
-            unget_ = c;
-        }
-    }
-
-private:
-    It b_;
-    It e_;
-    It c_;
-    char_type unget_;
-
-};
 
 struct SemanticAction {
     void syntax_error() {}
@@ -95,9 +13,8 @@ struct SemanticAction {
     void stack_overflow() {}
 
     // Base -> Derived
-    template <typename T>
-    void downcast(std::shared_ptr<T>& x, const std::shared_ptr<Node>& y)
-    {
+    template<typename T>
+    void downcast(std::shared_ptr<T> &x, const std::shared_ptr<Node> &y) {
         if (auto result = std::dynamic_pointer_cast<T, Node>(y)) {
             x = result;
         } else {
@@ -107,9 +24,8 @@ struct SemanticAction {
     }
 
     // Derived -> Base
-    template <typename T>
-    void upcast(std::shared_ptr<Node>& x, const std::shared_ptr<T>& y)
-    {
+    template<typename T>
+    void upcast(std::shared_ptr<Node> &x, const std::shared_ptr<T> &y) {
         x = std::static_pointer_cast<Node, T>(y);
     }
 
@@ -204,30 +120,31 @@ struct SemanticAction {
 };
 
 int main() {
-    // スキャナ
-    typedef std::istreambuf_iterator<char> is_iterator;
-    is_iterator b(std::cin);
-    is_iterator e;
-    scanner<is_iterator> s(b, e);
-
     SemanticAction sa;
 
     calc::Parser<std::shared_ptr<Node>, SemanticAction> parser(sa);
 
-    calc::Token token;
-    for (;;) {
-        std::shared_ptr<Node> v;
-        token = s.get(v);
+    std::string input;
+    std::vector<std::pair<calc::Token, std::shared_ptr<Node>>> tokens;
+    std::getline(std::cin, input);
 
-        if (parser.post(token, v)) { break; }
+    if (yylex(input.c_str(), tokens)) {
+        for (const auto &token: tokens) {
+            std::cout << "Result: " << token.first << " -- "
+                      << ((token.second != nullptr) ? token.second->str() : "nullptr") << std::endl;
+            if (parser.post(token.first, token.second)) { break; }
+        }
+    } else {
+        std::cerr << "yylex failed" << std::endl;
+        exit(1);
     }
 
     std::shared_ptr<Node> v;
     if (parser.accept(v)) {
-        std::cerr << "Accpeted\n";
+        std::cerr << "Accepted" << std::endl;
         std::cerr << v->str() << std::endl;
-        std::cerr << v->calc() << std::endl;
-        std::cerr << "Exit\n";
+        std::cout << v->calc() << std::endl;
+        std::cerr << "Exit" << std::endl;
     }
 
     return 0;
