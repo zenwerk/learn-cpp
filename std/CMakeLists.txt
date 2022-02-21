@@ -29,3 +29,6 @@ add_executable(std-shared-ptr
 
 add_executable(std-unique-ptr
     unique_ptr.cc)
+
+add_executable(std-string-input
+    string_input.cc)
