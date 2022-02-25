@@ -123,28 +123,31 @@ int main() {
     SemanticAction sa;
 
     calc::Parser<std::shared_ptr<Node>, SemanticAction> parser(sa);
-
-    std::string input;
     std::vector<std::pair<calc::Token, std::shared_ptr<Node>>> tokens;
-    std::getline(std::cin, input);
+    std::string input;
 
-    if (yylex(input.c_str(), tokens)) {
-        for (const auto &token: tokens) {
-            std::cout << "Result: " << token.first << " -- "
-                      << ((token.second != nullptr) ? token.second->str() : "nullptr") << std::endl;
-            if (parser.post(token.first, token.second)) { break; }
+    while(std::cout << "> ", std::getline(std::cin, input)) {
+        if (yylex(input.c_str(), tokens)) {
+            for (const auto &token: tokens) {
+                std::cout << "Result: " << calc::token_label(token.first) << " -- "
+                          << ((token.second != nullptr) ? token.second->str() : "nullptr") << std::endl;
+                if (parser.post(token.first, token.second)) { break; }
+            }
+        } else {
+            std::cerr << "yylex failed" << std::endl;
+            continue;
         }
-    } else {
-        std::cerr << "yylex failed" << std::endl;
-        exit(1);
-    }
 
-    std::shared_ptr<Node> v;
-    if (parser.accept(v)) {
-        std::cerr << "Accepted" << std::endl;
-        std::cerr << v->str() << std::endl;
-        std::cout << v->calc() << std::endl;
-        std::cerr << "Exit" << std::endl;
+        std::shared_ptr<Node> v;
+        if (parser.accept(v)) {
+            std::cerr << "Accepted" << std::endl;
+            std::cerr << v->str() << std::endl;
+            std::cout << v->calc() << std::endl;
+        } else {
+            std::cerr << "Not Accepted" << std::endl;
+        }
+
+        parser.reset();
     }
 
     return 0;

@@ -5,16 +5,13 @@
 #include "calc.hpp"
 
 
-// TODO: PUSH_TOKEN で yylex内でループするのは Bison/Cの制約から来た実装
-// TODO: caper/C++ なら getline で得た１行を yylex で token を vector に突っ込んで
-// TODO: 解析し終わったらその vector を return して、後は範囲forでparserにpushすればよいだろう
 bool yylex(const char *cursor, std::vector<std::pair<calc::Token, std::shared_ptr<Node>>> &tokens)
 {
     int num;
     char *marker;
     const char *token;
 
-    tokens.empty();
+    tokens.clear();
 
     loop:
     token = cursor;

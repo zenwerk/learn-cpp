@@ -9,7 +9,7 @@ bool yylex(const char *cursor, std::vector<std::pair<calc::Token, std::shared_pt
     char *marker;
     const char *token;
 
-    tokens.empty();
+    tokens.clear();
 
     loop:
     token = cursor;
