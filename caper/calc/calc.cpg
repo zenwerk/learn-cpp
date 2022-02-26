@@ -7,13 +7,10 @@
 %namespace calc;
 %smart_pointer<std::shared_ptr>;
 
-//%token NL
-//%token NUMBER
-//%token LP
-//%token RP
 //%left ADDOP SUBOP /* 左結合left  +  -   */
 //%left MULOP DIVOP /* 左結合left  *  /   */
 //%right UMINUS     /* 右結合 -           */
+
 
 Start<Expr>
     : [ReturnExpr] Expr(0)
