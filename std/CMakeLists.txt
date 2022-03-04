@@ -32,3 +32,6 @@ add_executable(std-unique-ptr
 
 add_executable(std-string-input
     string_input.cc)
+
+add_executable(std-variadic-template
+    variadic_template.cc)
