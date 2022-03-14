@@ -126,7 +126,7 @@ int main() {
     std::vector<std::pair<calc::Token, std::shared_ptr<Node>>> tokens;
     std::string input;
 
-    while(std::cout << "> ", std::getline(std::cin, input)) {
+    while(std::cout << "> " << std::flush, std::getline(std::cin, input)) {
         if (yylex(input.c_str(), tokens)) {
             for (const auto &token: tokens) {
                 std::cout << "Result: " << calc::token_label(token.first) << " -- "
