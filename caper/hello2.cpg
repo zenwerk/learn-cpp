@@ -10,4 +10,8 @@
 // この場合、Greetの0番目の引数が `Hello` に対応する値、1番目の引数が `World` に対応する
 // 引数指定がないトークンはセマンティックアクション呼び出し時に用いられない
 // この場合セマンティックアクションに `downcast` 関数が必要
+
+// こう考えればよい -> std::string Hello();
+//                   std::string World();
+//                   std::string Greet(Hello(), World());
 HelloWorld<std::string> : [Greet] Hello(0) World(1);

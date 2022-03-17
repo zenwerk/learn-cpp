@@ -4,4 +4,5 @@
 
 // 非終端記号 HelloWorld は int型
 // セマンティックアクション Greet は int を返す
+// こう考えればよい -> int Greet();
 HelloWorld<int> : [Greet] Hello World;

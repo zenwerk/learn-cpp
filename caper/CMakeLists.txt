@@ -34,3 +34,7 @@ add_executable(caper-hello7-shared-ptr
     hello7_shared_ptr.cc)
 
 add_subdirectory(calc)
+
+add_subdirectory(ebnf)
+
+#add_subdirectory(calc2)
