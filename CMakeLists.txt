@@ -8,34 +8,41 @@ include(cmake/tools.cmake)
 
 add_compile_options(
     -Wall
-)
+    )
 
 CPMAddPackage(
     NAME rtmidi
     GITHUB_REPOSITORY thestk/rtmidi
     GIT_TAG 4.0.0
     OPTIONS "RTMIDI_BUILD_STATIC_LIBS YES"
-)
+    )
 
 CPMAddPackage(
     NAME libuv
     GITHUB_REPOSITORY libuv/libuv
     GIT_TAG v1.42.0
-)
+    )
 
 CPMAddPackage(
     NAME uvw
     GITHUB_REPOSITORY skypjack/uvw
     GIT_TAG v2.10.0_libuv_v1.42
     OPTIONS "BUILD_UVW_LIBS YES"
-)
+    )
 
 CPMAddPackage(
     NAME mapbox_variant
     GITHUB_REPOSITORY mapbox/variant
     GIT_TAG f87fcbda9daf13fba47a6a889696b0ad23fc098d
     DOWNLOAD_ONLY YES
-)
+    )
+
+CPMAddPackage(
+    NAME libremidi
+    GITHUB_REPOSITORY jcelerier/libremidi
+    GIT_TAG d514fac6ea7980c2faa166b8e68050f0779f6fec
+    OPTIONS "LIBREMIDI_HEADER_ONLY YES"
+    )
 
 add_subdirectory(sfml)
 
@@ -48,3 +55,5 @@ add_subdirectory(uvw)
 add_subdirectory(caper)
 
 add_subdirectory(std)
+
+add_subdirectory(libremidi)
