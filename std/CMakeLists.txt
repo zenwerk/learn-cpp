@@ -38,3 +38,6 @@ add_executable(std-variadic-template
 
 add_executable(std-struct-as-type-template
     struct_as_type_template.cc)
+
+add_executable(std-overloaded-lambda
+    overloaded_lambda.cc)
