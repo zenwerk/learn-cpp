@@ -57,3 +57,5 @@ add_subdirectory(caper)
 add_subdirectory(std)
 
 add_subdirectory(libremidi)
+
+add_subdirectory(boost)
