@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 17)
+﻿set(CMAKE_CXX_STANDARD 17)
 
 if (WIN32)
     set(BOOST_ROOT_DIR "C:\\Boost") # b2.exe link=static,shared toolset=msvc -j8 install
