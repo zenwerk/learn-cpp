@@ -26,7 +26,7 @@ CPMAddPackage(
 CPMAddPackage(
     NAME uvw
     GITHUB_REPOSITORY skypjack/uvw
-    GIT_TAG v2.10.0_libuv_v1.42
+    GIT_TAG v2.12.1_libuv_v1.44
     OPTIONS "BUILD_UVW_LIBS YES"
     )
 
