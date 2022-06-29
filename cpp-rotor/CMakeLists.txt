@@ -5,8 +5,9 @@ include(FetchContent)
 if (WIN32)
     set(BOOST_ROOT_DIR "C:\\Boost") # b2.exe link=static,shared toolset=msvc -j8 install
     set(BOOST_INCLUDEDIR "${BOOST_ROOT_DIR}\\include\\boost-1_79")
-    set(BOOST_LIBRARYDIRS "${BOOST_ROOT_DIR}\\lib")
     set(Boost_INCLUDE_DIR "C:\\Boost\\include\\boost-1_79")
+    set(BOOST_LIBRARYDIRS "${BOOST_ROOT_DIR}\\lib")
+    set(Boost_COMPILER "-vc142")
 endif ()
 
 message("## Boost_INCLUDE_DIR: ${Boost_INCLUDE_DIR}")  # デバッグ用：解決したパスを表示
@@ -15,11 +16,10 @@ message("## Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")  # デバッグ用：解
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 #set(Boost_USE_STATIC_RUNTIME ON)
-set(Boost_ARCHITECTURE "-x64")
 set(Boost_DEBUG ON)
-set(Boost_COMPILER "-vc142")
+set(Boost_ARCHITECTURE "-x64")
 
-find_package(Boost 1.79.0 REQUIRED COMPONENTS
+find_package(Boost ${Boost_VERSION_STRING} REQUIRED COMPONENTS
     date_time
     system
     thread
@@ -32,7 +32,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/basiliscos/cpp-rotor.git
     GIT_TAG v0.24
     GIT_SUBMODULES ""
-    BUILD_BOOST_ASIO YES
+    BUILD_BOOST_ASIO ON
     )
 FetchContent_MakeAvailable(rotor)
 
