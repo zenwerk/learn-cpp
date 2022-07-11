@@ -1,11 +1,12 @@
 // from: https://gist.github.com/mcleary/b0bf4fa88830ff7c882d
 #include <iostream>
 #include <chrono>
-#include <ctime>
 #include <cmath>
 
 #ifdef WIN32
 #define M_PI 3.141592653589793
+#else
+#include <ctime>
 #endif
 
 class Timer {
@@ -20,7 +21,7 @@ public:
         m_bRunning = false;
     }
 
-    double elapsedMilliseconds() {
+    long long elapsedMilliseconds() {
         std::chrono::time_point<std::chrono::steady_clock> endTime;
 
         if (m_bRunning) {
@@ -32,8 +33,8 @@ public:
         return std::chrono::duration_cast<std::chrono::milliseconds>(endTime - m_StartTime).count();
     }
 
-    double elapsedSeconds() {
-        return elapsedMilliseconds() / 1000.0;
+    long long elapsedSeconds() {
+        return elapsedMilliseconds() / 1000;
     }
 
 private:
@@ -48,18 +49,18 @@ long fibonacci(unsigned n) {
 }
 
 int main() {
-//    std::chrono::time_point<std::chrono::system_clock> start, end;
-//    start = std::chrono::system_clock::now();
+//    std::chrono::time_point<std::chrono::steady_clock> start, end;
+//    start = std::chrono::steady_clock::now();
 //    Timer timer;
 //    timer.start();
 //    std::cout << "f(42) = " << fibonacci(42) << '\n';
 //    timer.stop();
 //
 //    std::cout << "Time: " << timer.elapsed() << std::endl;
-//    end = std::chrono::system_clock::now();
+//    end = std::chrono::steady_clock::now();
 
 //    std::chrono::duration<double> elapsed_seconds = end-start;
-//    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+//    std::time_t end_time = std::chrono::steady_clock::to_time_t(end);
 
 //    std::cout << "finished computation at " << std::ctime(&end_time)
 //    << "elapsed time: " << elapsed_seconds.count() << "s\n";
