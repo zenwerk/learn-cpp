@@ -1,7 +1,6 @@
-// from: https://gist.github.com/mcleary/b0bf4fa88830ff7c882d
-#include <iostream>
 #include <chrono>
 #include <cmath>
+#include <iostream>
 
 #ifdef WIN32
 #define M_PI 3.141592653589793
@@ -9,6 +8,7 @@
 #include <ctime>
 #endif
 
+// from: https://gist.github.com/mcleary/b0bf4fa88830ff7c882d
 class Timer {
 public:
     void start() {
@@ -42,6 +42,51 @@ private:
     std::chrono::time_point<std::chrono::steady_clock> m_EndTime;
     bool m_bRunning = false;
 };
+
+
+// from: https://codereview.stackexchange.com/a/225927
+class SimpleTimer {
+    using clock = std::chrono::steady_clock;
+    clock::time_point StartTime = {};
+    clock::duration ElapsedTime = {};
+
+public:
+    [[nodiscard]] bool IsRunning() const {
+        return StartTime != clock::time_point{};
+    }
+
+    void Start() {
+        if (!IsRunning()) {
+            StartTime = clock::now();
+        }
+    }
+
+    void Stop() {
+        if (IsRunning()) {
+            ElapsedTime += clock::now() - StartTime;
+            StartTime = {};
+        }
+    }
+
+    void Reset() {
+        StartTime = {};
+        ElapsedTime = {};
+    }
+
+    clock::duration GetElapsed() {
+        auto result = ElapsedTime;
+        if (IsRunning()) {
+            result += clock::now() - StartTime;
+        }
+        return result;
+    }
+
+    long long GetElapsedSeconds() {
+        auto elapsed = GetElapsed();
+        return std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
+    }
+};
+
 
 long fibonacci(unsigned n) {
     if (n < 2) return n;
@@ -79,4 +124,17 @@ int main() {
     std::cout << counter << std::endl;
     std::cout << "Seconds: " << timer.elapsedSeconds() << std::endl;
     std::cout << "Milliseconds: " << timer.elapsedMilliseconds() << std::endl;
+
+    //--------------------
+    SimpleTimer stimer;
+    counter = 0;
+    stimer.Start();
+    while (stimer.GetElapsedSeconds() < 2.0) {
+        counter++;
+    }
+    stimer.Stop();
+    std::cout << counter << std::endl;
+    std::cout << "Seconds: " << stimer.GetElapsedSeconds() << std::endl;
+
+    return 0;
 }
