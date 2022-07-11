@@ -41,3 +41,6 @@ add_executable(std-struct-as-type-template
 
 add_executable(std-overloaded-lambda
     overloaded_lambda.cc)
+
+add_executable(std-chrono-timer
+    chrono_timer.cc)
