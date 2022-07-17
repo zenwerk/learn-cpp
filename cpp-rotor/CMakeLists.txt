@@ -52,3 +52,6 @@ add_executable(rotor-ping-pong-timer.cc
 add_executable(rotor-hello-asio
     hello_asio.cc
     )
+add_executable(rotor-pub-sub
+    pub_sub.cc
+    )
