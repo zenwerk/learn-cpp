@@ -36,9 +36,19 @@ FetchContent_Declare(
     )
 FetchContent_MakeAvailable(rotor)
 
-add_executable(rotor-helloloopless
-    hello_loopless.cc
+include_directories(${rotor_SOURCE_DIR}/include)
+link_libraries(
+    rotor
+    rotor::asio
+    rotor::thread
     )
 
-target_include_directories(rotor-helloloopless PUBLIC ${rotor_SOURCE_DIR}/include)
-target_link_libraries(rotor-helloloopless rotor::asio)
+add_executable(rotor-hello-loopless
+    hello_loopless.cc
+    )
+add_executable(rotor-ping-pong-timer.cc
+    ping-pong-timer.cc
+    )
+add_executable(rotor-hello-asio
+    hello_asio.cc
+    )
