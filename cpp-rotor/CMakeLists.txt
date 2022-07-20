@@ -55,3 +55,6 @@ add_executable(rotor-hello-asio
 add_executable(rotor-pub-sub
     pub_sub.cc
     )
+add_executable(rotor-timer
+    timer.cc
+    )
