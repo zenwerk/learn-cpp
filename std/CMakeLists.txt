@@ -42,5 +42,17 @@ add_executable(std-struct-as-type-template
 add_executable(std-overloaded-lambda
     overloaded_lambda.cc)
 
+add_executable(std-thread-basic
+    thread_basic.cc)
+
+add_executable(std-thread-mutex
+    thread_mutex.cc)
+
+add_executable(std-thread-conditional-variable
+    thread_conditional_variable.cc)
+
+add_executable(std-thread-future-promise
+    thread_future_promise.cc)
+
 add_executable(std-chrono-timer
     chrono_timer.cc)
