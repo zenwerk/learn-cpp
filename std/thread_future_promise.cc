@@ -1,6 +1,7 @@
-﻿#include <thread>
-#include <future>
+﻿#include <future>
 #include <iostream>
+#include <thread>
+#include <vector>
 
 int computeSomething() { return 42; }
 
