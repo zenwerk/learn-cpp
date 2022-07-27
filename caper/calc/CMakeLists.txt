@@ -1,6 +1,6 @@
 find_program(CAPER NAMES caper caper.exe)
 if(NOT CAPER)
-    message(FATAL_ERROR "caper (or caper.exe) program is required for calc")
+    message(WARNING "caper (or caper.exe) program is required for calc")
 endif()
 
 find_program(RE2C NAMES re2c re2c.exe)

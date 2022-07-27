@@ -2,7 +2,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 find_program(CAPER NAMES caper caper.exe)
 if(NOT CAPER)
-    message(FATAL_ERROR "caper (or caper.exe) program is required")
+    message(WARNING "caper (or caper.exe) program is required")
 endif()
 
 include_directories(
