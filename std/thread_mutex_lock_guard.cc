@@ -14,7 +14,6 @@ void worker(int n) {
 
     auto elapsed_time_ = clock::now() - start_point_;
     std::cout << "Elapsed: " << std::chrono::duration_cast<std::chrono::seconds>(elapsed_time_).count() << " seconds" << std::endl;
-    std::unique_lock<std::mutex> uk{mtx_};
 }
 
 
