@@ -54,5 +54,8 @@ add_executable(std-thread-conditional-variable
 add_executable(std-thread-future-promise
     thread_future_promise.cc)
 
+add_executable(std-thread-mutex-lock-guard
+    thread_mutex_lock_guard.cc)
+
 add_executable(std-chrono-timer
     chrono_timer.cc)

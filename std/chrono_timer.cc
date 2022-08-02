@@ -47,36 +47,36 @@ private:
 // from: https://codereview.stackexchange.com/a/225927
 class SimpleTimer {
     using clock = std::chrono::steady_clock;
-    clock::time_point StartTime = {};
-    clock::duration ElapsedTime = {};
+    clock::time_point start_time_ = {};
+    clock::duration elapsed_time_ = {};
 
 public:
     [[nodiscard]] bool IsRunning() const {
-        return StartTime != clock::time_point{};
+        return start_time_ != clock::time_point{};
     }
 
     void Start() {
         if (!IsRunning()) {
-            StartTime = clock::now();
+            start_time_ = clock::now();
         }
     }
 
     void Stop() {
         if (IsRunning()) {
-            ElapsedTime += clock::now() - StartTime;
-            StartTime = {};
+            elapsed_time_ += clock::now() - start_time_;
+            start_time_ = {};
         }
     }
 
     void Reset() {
-        StartTime = {};
-        ElapsedTime = {};
+        start_time_ = {};
+        elapsed_time_ = {};
     }
 
     clock::duration GetElapsed() {
-        auto result = ElapsedTime;
+        auto result = elapsed_time_;
         if (IsRunning()) {
-            result += clock::now() - StartTime;
+            result += clock::now() - start_time_;
         }
         return result;
     }

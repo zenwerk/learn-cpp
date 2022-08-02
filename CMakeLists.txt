@@ -61,3 +61,5 @@ add_subdirectory(libremidi)
 add_subdirectory(boost)
 
 add_subdirectory(cpp-rotor)
+
+add_subdirectory(blueprint)
