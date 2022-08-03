@@ -57,5 +57,8 @@ add_executable(std-thread-future-promise
 add_executable(std-thread-mutex-lock-guard
     thread_mutex_lock_guard.cc)
 
+add_executable(std-thread-shared-lock
+    thread_shared_lock.cc)
+
 add_executable(std-chrono-timer
     chrono_timer.cc)
