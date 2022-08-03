@@ -9,8 +9,10 @@ struct LockedQueue {
     explicit LockedQueue(size_t capacity) : capacity_(capacity) {}
 
     void enqueue(const T &x) {
-        std::unique_lock<std::mutex> lock{m_}; // ロックを獲得
-        // ロックを解除し通知が送られてくるまで wait する. 「容量に空きがある」まで待機
+        std::unique_lock<std::mutex> lock{m_}; // ロックを獲得 (ここで一旦ロックする)
+        // 1. 取得したロックを解除する
+        // 2. 通知を受け取るまでスレッドをブロックする. この場合「容量に空きがある」まで待機する
+        // 3. ブロックを解除したら(条件が満たされたら)再度ロックする
         cv_enqueue_.wait(lock, [this]{ return data_.size() != capacity_; });
         data_.push_back(x);
         // Dequeue側のいずれかの条件変数に「空キューではなくなった」と通知する
@@ -18,8 +20,10 @@ struct LockedQueue {
     }
 
     T dequeue() {
-        std::unique_lock<std::mutex> lock{m_}; // ロックを獲得
-        // lock を解除し, 通知が送られてくるまで wait する. 「空ではない」まで待機する
+        std::unique_lock<std::mutex> lock{m_}; // ロックを獲得 (ここで一旦ロックする)
+        // 1. 取得したロックを解除する
+        // 2. 通知を受け取るまでスレッドをブロックする. この場合「空ではない」まで待機する
+        // 3. ブロックを解除したら(条件が満たされたら)再度ロックする
         cv_dequeue_.wait(lock, [this]{ return !data_.empty(); });
         T ret = data_.front();
         data_.pop_front();
