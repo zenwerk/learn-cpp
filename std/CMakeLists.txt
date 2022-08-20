@@ -62,3 +62,6 @@ add_executable(std-thread-shared-lock
 
 add_executable(std-chrono-timer
     chrono_timer.cc)
+
+add_executable(std-timespec_get
+    timespec_get.cc)

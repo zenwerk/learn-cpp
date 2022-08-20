@@ -8,6 +8,7 @@ int computeSomething() { return 42; }
 void worker(std::promise<int> p) {
     try {
         // 処理結果をPromiseに設定する
+        // set_value できるのは1回のみ. 複数回呼び出すと例外
         p.set_value(computeSomething());
     } catch (...) {
         // 例外をPromiseに設定
