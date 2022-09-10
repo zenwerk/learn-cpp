@@ -85,6 +85,13 @@ public:
         auto elapsed = GetElapsed();
         return std::chrono::duration_cast<std::chrono::seconds>(elapsed).count();
     }
+
+    template<class T>
+    long long GetElapsed() {
+      auto elapsed = GetElapsed();
+      return std::chrono::duration_cast<T>(elapsed).count();
+    }
+
 };
 
 
@@ -129,7 +136,7 @@ int main() {
     SimpleTimer stimer;
     counter = 0;
     stimer.Start();
-    while (stimer.GetElapsedSeconds() < 2.0) {
+    while (stimer.GetElapsed<std::chrono::seconds>() < 2.0) {
         counter++;
     }
     stimer.Stop();

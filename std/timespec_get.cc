@@ -7,9 +7,9 @@ int main() {
     timespec ts{};
 
     timespec_get(&ts, TIME_UTC);
-    printf("sec=%ld  nanosec=%09ld\n", ts.tv_sec, ts.tv_nsec);
+    printf("sec=%ld  nanosecond=%09ld\n", ts.tv_sec, ts.tv_nsec);
     timespec_get(&ts, TIME_UTC);
-    printf("sec=%ld  nanosec=%09ld\n", ts.tv_sec, ts.tv_nsec);
+    printf("sec=%ld  nanosecond=%09ld\n", ts.tv_sec, ts.tv_nsec);
 
     // 秒未満の値をミリ秒で取得
     auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::nanoseconds{ts.tv_nsec});

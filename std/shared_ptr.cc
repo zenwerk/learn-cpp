@@ -10,6 +10,7 @@ public:
 };
 
 class Derived : public Base {
+    int i_ = 0;
 public:
     explicit Derived(int i) : i_(i) {
     }
@@ -17,9 +18,6 @@ public:
     void call() override {
         std::cout << __FUNCTION__ << ": " << i_ << std::endl;
     }
-
-private:
-    int i_ = 0;
 };
 
 
