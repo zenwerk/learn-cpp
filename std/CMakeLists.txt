@@ -65,3 +65,9 @@ add_executable(std-chrono-timer
 
 add_executable(std-timespec_get
     timespec_get.cc)
+
+add_executable(join-thread-cpp14
+    join_thread_cpp14.cc)
+
+#add_executable(foo
+#    foo.cc)
