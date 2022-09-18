@@ -7,9 +7,9 @@ class join_thread {
   std::thread _thread;
 
 public:
-  template <class F> explicit join_thread(F f) {
-    _thread =
-        std::thread{[this, g = std::move(f)] { g(_stop_request); }};
+  template <class F>
+  explicit join_thread(F f) {
+    _thread = std::thread{[this, g = std::move(f)] { g(_stop_request); }};
   }
 
   ~join_thread() { join(); }

@@ -70,7 +70,7 @@ add_executable(std-forward-list
     forward-list.cc)
 
 add_executable(join-thread-cpp14
-    join_thread_cpp14.cc)
+    thread_join_thread_cpp14.cc)
 
 #add_executable(foo
 #    foo.cc)
