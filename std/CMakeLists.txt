@@ -1,5 +1,8 @@
 set(CMAKE_CXX_STANDARD 17)
 
+add_executable(std-min-max-value-by-type
+    min_max_value_by_type.cc)
+
 add_executable(std-recursive-variant
     recursive_data_composition.cpp)
 
