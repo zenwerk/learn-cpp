@@ -51,6 +51,9 @@ add_executable(std-thread-basic
 add_executable(std-thread-mutex
     thread_mutex.cc)
 
+add_executable(std-thread-conditional-variable-basic
+    thread_conditional_variable_basic.cc)
+
 add_executable(std-thread-conditional-variable
     thread_conditional_variable.cc)
 
