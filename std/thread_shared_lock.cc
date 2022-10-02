@@ -6,6 +6,7 @@
 int value = 0;
 std::shared_mutex smtx_;
 std::mutex pmtx;
+std::condition_variable cv;
 
 void print(const std::string &s) {
     std::lock_guard<std::mutex> lk{pmtx};
@@ -13,27 +14,27 @@ void print(const std::string &s) {
 }
 
 void writer(int n) {
-    print("lock_guard");
+    print("Writer - try lock_guard");
     std::lock_guard<std::shared_mutex> lk{smtx_}; // ユニークなロックを獲得
     std::this_thread::sleep_for(std::chrono::seconds{1}); // 1秒待機
     value = n;
-    print("unlock_guard");
+    print("Writer - unlock_guard");
 }
 
 void shared_lock_reader(int &n) {
-    print("lock_shared");
+    print("Shared Lock Reader - try shared_lock");
     std::shared_lock<std::shared_mutex> lk{smtx_}; // 共有ロックを取得
     std::this_thread::sleep_for(std::chrono::seconds{1}); // 1秒待機
     n = value;
-    print("unlock_shared");
+    print("Shared Lock Reader - unlock_shared");
 }
 
 void unique_lock_reader(int &n) {
-    print("lock_guard");
+    print("Unique Lock Reader - try lock_guard");
     std::lock_guard<std::shared_mutex> lk{smtx_}; // ユニークなロックを取得
     std::this_thread::sleep_for(std::chrono::seconds{1}); // 1秒待機
     n = value;
-    print("unlock_guard");
+    print("Unique Lock Reader - unlock_guard");
 }
 
 void read_write_with_shared_lock() {

@@ -37,7 +37,9 @@ void worker2() {
 int main() {
   std::thread th1(worker1);
   std::thread th2(worker2);
+  std::thread th3(worker2);
   th1.join();
   th2.join();
+  th3.join();
   return 0;
 }
