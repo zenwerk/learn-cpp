@@ -1,5 +1,6 @@
 #include <forward_list>
 #include <iostream>
+#include <cstdio>
 #include <memory>
 
 class Foo {
@@ -12,7 +13,8 @@ public:
   bool operator<(const Foo &rhs) const { return val_ < rhs.val_; }
 };
 
-int main() {
+// 基本操作
+void basic_example() {
   auto foo1 = std::make_shared<Foo>(1);
   auto foo2 = std::make_shared<Foo>(2);
   auto foo3 = std::make_shared<Foo>(3);
@@ -53,14 +55,34 @@ int main() {
     if (itr->get()->val_ == 1) {
       foo_list.erase_after(itr);
     }
-    if (itr->get()->val_ == 3) {
-      // foo_list.remove(itr->get()); TODO: スマートポインタで remove するには？
-    }
   }
 
   std::for_each(foo_list.cbegin(), foo_list.cend(), [](auto foo) {
     std::cout << "val_ = " << foo->val_ << std::endl;
   });
+
+}
+
+// その他
+void some_examples() {
+  std::forward_list<int> lst;
+
+  // リストが空か？
+  if (lst.empty()) {
+    std::cout << "リストが空です" << std::endl;
+    lst.push_front(1);
+  }
+
+  // forward_list のサイズを図る
+  if (size_t n = std::distance(lst.cbegin(), lst.cend()) != 0)
+    std::cout << "リストの長さ: " << n << std::endl;
+
+}
+
+int main() {
+  basic_example();
+
+  some_examples();
 
   return 0;
 }
