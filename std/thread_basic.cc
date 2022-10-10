@@ -48,7 +48,7 @@ int main() {
     // Thread実行される関数に対して初期化時に(コピーして)引数を渡せる
     std::thread th1{f1, x}; // 値渡し
     std::thread th2{f2, std::ref(y)}; // 参照型渡し
-    std::thread th3{f3, move(z)}; // move
+    std::thread th3{f3, std::move(z)}; // move
 
     std::thread oneSecond{stop, 1}; // 1秒かかる処理
     std::thread oneMinute{stop, 60}; // 1分かかる処理
