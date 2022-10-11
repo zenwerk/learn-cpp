@@ -48,27 +48,6 @@ add_executable(std-struct-as-type-template
 add_executable(std-overloaded-lambda
     overloaded_lambda.cc)
 
-add_executable(std-thread-basic
-    thread_basic.cc)
-
-add_executable(std-thread-mutex
-    thread_mutex.cc)
-
-add_executable(std-thread-conditional-variable-basic
-    thread_conditional_variable_basic.cc)
-
-add_executable(std-thread-conditional-variable
-    thread_conditional_variable.cc)
-
-add_executable(std-thread-future-promise
-    thread_future_promise.cc)
-
-add_executable(std-thread-mutex-lock-guard
-    thread_mutex_lock_guard.cc)
-
-add_executable(std-thread-shared-lock
-    thread_shared_lock.cc)
-
 add_executable(std-chrono-timer
     chrono_timer.cc)
 
@@ -78,8 +57,5 @@ add_executable(std-timespec_get
 add_executable(std-forward-list
     forward-list.cc)
 
-add_executable(join-thread-cpp14
-    thread_join_thread_cpp14.cc)
-
-#add_executable(foo
-#    foo.cc)
+add_executable(foo
+    foo.cc)
