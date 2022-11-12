@@ -24,3 +24,4 @@ add_executable(std-thread-shared-lock
 add_executable(join-thread-cpp14
     join_thread_cpp14.cc)
 
+add_subdirectory(ccia-mpi-example)
