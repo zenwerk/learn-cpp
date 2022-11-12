@@ -24,7 +24,7 @@ class Queue {
   std::condition_variable c;
   std::queue<std::shared_ptr<MessageBase> > q;
 
- public:
+public:
   template<typename T>
   void push(T const &msg) {
 	std::lock_guard<std::mutex> lk(m);
@@ -62,7 +62,7 @@ class TemplateDispatcher {
   }
 
   bool dispatch(std::shared_ptr<MessageBase> const &msg) {
-	if (WrappedMessage <Msg > *wrapper = dynamic_cast<WrappedMessage<Msg> *>(msg.get())) {
+	if (auto *wrapper = dynamic_cast<WrappedMessage<Msg> *>(msg.get())) {
 	  f(wrapper->contents);
 	  return true;
 	} else {
@@ -70,10 +70,10 @@ class TemplateDispatcher {
 	}
   }
 
- public:
+public:
   TemplateDispatcher(TemplateDispatcher const &) = delete;
   TemplateDispatcher &operator=(TemplateDispatcher const &) = delete;
-  TemplateDispatcher(TemplateDispatcher &&other) : q(other.q), prev(other.prev), f(std::move(other.f)), chained(other.chained) {
+  TemplateDispatcher(TemplateDispatcher &&other)  noexcept : q(other.q), prev(other.prev), f(std::move(other.f)), chained(other.chained) {
 	other.chained = true;
   }
 
@@ -100,7 +100,7 @@ class Dispatcher {
   template<typename Dispatcher, typename Msg, typename Func>
   friend class TemplateDispatcher;
 
-  void wait_and_dispatch() {
+  [[noreturn]] void wait_and_dispatch() {
 	for (;;) {
 	  auto msg = q->wait_and_pop();
 	  dispatch(msg);

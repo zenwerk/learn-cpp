@@ -2,13 +2,14 @@
 #define MESSAGES_H
 
 #include <string>
+#include <utility>
 #include "mpi.h"
 
 struct withdraw {
   std::string account;
   unsigned amount;
   mutable messaging::Sender atm_queue;
-  withdraw(std::string const &account_, unsigned amount_, messaging::Sender atm_queue_) : account(account_), amount(amount_), atm_queue(atm_queue_) {}
+  withdraw(std::string account_, unsigned amount_, messaging::Sender atm_queue_) : account(std::move(account_)), amount(amount_), atm_queue(atm_queue_) {}
 };
 
 struct withdraw_ok {};
@@ -17,18 +18,18 @@ struct withdraw_denied {};
 struct cancel_withdrawal {
   std::string account;
   unsigned amount;
-  cancel_withdrawal(std::string const &account_, unsigned amount_) : account(account_), amount(amount_) {}
+  cancel_withdrawal(std::string account_, unsigned amount_) : account(std::move(account_)), amount(amount_) {}
 };
 
 struct withdrawal_processed {
   std::string account;
   unsigned amount;
-  withdrawal_processed(std::string const &account_, unsigned amount_) : account(account_), amount(amount_) {}
+  withdrawal_processed(std::string account_, unsigned amount_) : account(std::move(account_)), amount(amount_) {}
 };
 
 struct card_inserted {
   std::string account;
-  explicit card_inserted(std::string const &account_) : account(account_) {}
+  explicit card_inserted(std::string account_) : account(std::move(account_)) {}
 };
 
 struct digit_pressed {
@@ -48,14 +49,14 @@ struct cancel_pressed {};
 
 struct issue_money {
   unsigned amount;
-  issue_money(unsigned amount_) : amount(amount_) {}
+  explicit issue_money(unsigned amount_) : amount(amount_) {}
 };
 
 struct verify_pin {
   std::string account;
   std::string pin;
   mutable messaging::Sender atm_queue;
-  verify_pin(std::string const &account_, std::string const &pin_, messaging::Sender atm_queue_) : account(account_), pin(pin_), atm_queue(atm_queue_) {}
+  verify_pin(std::string account_, std::string pin_, messaging::Sender atm_queue_) : account(std::move(account_)), pin(std::move(pin_)), atm_queue(atm_queue_) {}
 };
 
 struct pin_verified {};
@@ -70,7 +71,7 @@ struct display_withdrawal_options {};
 struct get_balance {
   std::string account;
   mutable messaging::Sender atm_queue;
-  get_balance(std::string const &account_, messaging::Sender atm_queue_) : account(account_), atm_queue(atm_queue_) {}
+  get_balance(std::string account_, messaging::Sender atm_queue_) : account(std::move(account_)), atm_queue(atm_queue_) {}
 };
 
 struct balance {

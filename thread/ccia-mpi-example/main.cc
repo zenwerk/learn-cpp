@@ -12,7 +12,7 @@ int main() {
   std::thread bank_thread(&BankMachine::run, &bank);
   std::thread if_thread(&InterfaceMachine::run, &interface_hardware);
   std::thread atm_thread(&Atm::run, &machine);
-  messaging::Sender atmqueue(machine.get_sender());
+  messaging::Sender atm_queue(machine.get_sender());
   bool quit_pressed = false;
 
   while (!quit_pressed) {
@@ -27,17 +27,17 @@ int main() {
 	  case '6':
 	  case '7':
 	  case '8':
-	  case '9':atmqueue.send(digit_pressed(c));
+	  case '9':atm_queue.send(digit_pressed(c));
 		break;
-	  case 'b':atmqueue.send(balance_pressed());
+	  case 'b':atm_queue.send(balance_pressed());
 		break;
-	  case 'w':atmqueue.send(withdraw_pressed(50));
+	  case 'w':atm_queue.send(withdraw_pressed(50));
 		break;
-	  case 'c':atmqueue.send(cancel_pressed());
+	  case 'c':atm_queue.send(cancel_pressed());
 		break;
 	  case 'q':quit_pressed = true;
 		break;
-	  case 'i':atmqueue.send(card_inserted("acc1234"));
+	  case 'i':atm_queue.send(card_inserted("acc1234"));
 		break;
 	  default:
 		std::cout << "unknown message: " << c << std::endl;
