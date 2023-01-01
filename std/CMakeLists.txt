@@ -57,5 +57,8 @@ add_executable(std-timespec_get
 add_executable(std-forward-list
     forward-list.cc)
 
+add_executable(std-operator-cast
+    operator_cast.cc)
+
 add_executable(foo
     foo.cc)
