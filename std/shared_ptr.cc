@@ -4,70 +4,70 @@
 
 class Base {
 public:
-    virtual ~Base() = default;
+  virtual ~Base() = default;
 
-    virtual void call() = 0;
+  virtual void call() = 0;
 };
 
 class Derived : public Base {
-    int i_ = 0;
+  int i_ = 0;
 public:
-    explicit Derived(int i) : i_(i) {
-    }
+  explicit Derived(int i) : i_(i) {
+  }
 
-    void call() override {
-        std::cout << __FUNCTION__ << ": " << i_ << std::endl;
-    }
+  void call() override {
+    std::cout << __FUNCTION__ << ": " << i_ << std::endl;
+  }
 };
 
 
 // 参照で受け取ることを忘れず
 void pass_shared_ptr(std::shared_ptr<Base> &v) {
-    v = std::make_shared<Derived>(99);
+  v = std::make_shared<Derived>(99);
 }
 
 void pass_shared_ptr_2(std::shared_ptr<Base> &v) {
-    v.reset(new Derived(88));
+  v.reset(new Derived(88));
 }
 
-void pass_shared_ptr_get(Base* v) {
-    v = new Derived(999);
+void pass_shared_ptr_get(Base *v) {
+  v = new Derived(999);
 }
 
 // std::shared_ptr を関数の引数に渡して操作したい
 void passing_shared_ptr() {
-    {
-        std::shared_ptr<Base> v;
-        pass_shared_ptr(v);
-        if (v)
-            v->call();
-        else
-            std::cout << "nullptr1" << std::endl;
-    }
+  {
+    std::shared_ptr<Base> v;
+    pass_shared_ptr(v);
+    if (v)
+      v->call();
+    else
+      std::cout << "nullptr1" << std::endl;
+  }
 
-    {
-        // This is not work !
-        std::shared_ptr<Base> v;
-        pass_shared_ptr_get(v.get());
-        if (v)
-            v->call();
-        else
-            std::cout << "nullptr2" << std::endl;
-    }
+  {
+    // This is not work !
+    std::shared_ptr<Base> v;
+    pass_shared_ptr_get(v.get());
+    if (v)
+      v->call();
+    else
+      std::cout << "nullptr2" << std::endl;
+  }
 
-    {
-        std::shared_ptr<Base> v;
-        pass_shared_ptr_2(v);
-        if (v)
-            v->call();
-        else
-            std::cout << "nullptr2" << std::endl;
-    }
+  {
+    std::shared_ptr<Base> v;
+    pass_shared_ptr_2(v);
+    if (v)
+      v->call();
+    else
+      std::cout << "nullptr2" << std::endl;
+  }
 }
 
 
 int main() {
-    passing_shared_ptr();
+  passing_shared_ptr();
 
-    return 0;
+  return 0;
 }
