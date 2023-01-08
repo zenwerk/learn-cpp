@@ -88,8 +88,7 @@ public:
   TemplateDispatcher &operator=(TemplateDispatcher const &) = delete; // 代入演算子は削除
 
   // moveコンストラクタ
-  TemplateDispatcher(TemplateDispatcher &&other) noexcept: q(other.q), prev(other.prev), f(std::move(other.f)),
-                                                           chained(other.chained) {
+  TemplateDispatcher(TemplateDispatcher &&other) noexcept: q(other.q), prev(other.prev), f(std::move(other.f)), chained(other.chained) {
     other.chained = true;
   }
 

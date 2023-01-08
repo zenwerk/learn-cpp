@@ -28,7 +28,7 @@ void basic_example() {
 
   // 最後に挿入
   auto before_end = foo_list.before_begin();
-  for (auto &_ : foo_list)
+  for (auto &_: foo_list)
     ++before_end;
   foo_list.insert_after(before_end, std::move(foo4));
 

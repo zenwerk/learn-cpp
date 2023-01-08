@@ -1,7 +1,8 @@
 ﻿// 可変長引数テンプレート
 #include <iostream>
 
-struct Foo {};
+struct Foo {
+};
 
 void showTypes() {
   std::cout << std::endl;

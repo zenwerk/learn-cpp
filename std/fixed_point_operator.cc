@@ -21,22 +21,21 @@ using Var = std::variant<int, bool, double, std::string, std::vector<T>>;
  * (F) -> テンプレート変数一つを受け取る型 `RecType` を受け取る構造体 `Fix`
  * (R) -> テンプレート変数一つを受け取る型 `RecType`
  */
-template <template<typename> class RecType>
+template<template<typename> class RecType>
 struct Fix : RecType<Fix<RecType>> // Var< Fix<Var> >となるので variant の中に std::vector<Fix<Var>> が登録される
-                                   // CRTPパターンより基底のVarからFix構造体のメンバは直接呼び出せるため `using宣言` より
-                                   // Fix<Var> は直接 Var のデータにアクセスできる -> これによって再帰的なデータアクセスが可能になる
+  // CRTPパターンより基底のVarからFix構造体のメンバは直接呼び出せるため `using宣言` より
+  // Fix<Var> は直接 Var のデータにアクセスできる -> これによって再帰的なデータアクセスが可能になる
 {
-    // 継承した R は Fix<Var> なので R<Fix<R>> は Fix<Var<Fix<Var<Fix...>>>  と再帰していく
-    // using .. R -> は using Var となり, Var のメンバには std::vector<Fix<Var>> があり, Fix<Var> は R<Fix<R>> をCRTPで自己参照できるので...を繰り返す
-    using RecType<Fix>::RecType;
+  // 継承した R は Fix<Var> なので R<Fix<R>> は Fix<Var<Fix<Var<Fix...>>>  と再帰していく
+  // using .. R -> は using Var となり, Var のメンバには std::vector<Fix<Var>> があり, Fix<Var> は R<Fix<R>> をCRTPで自己参照できるので...を繰り返す
+  using RecType<Fix>::RecType;
 };
 
 using ScriptParameter = Fix<Var>;
 
 
-int main()
-{
-    using V = std::vector<ScriptParameter>;
-    ScriptParameter k {V{1, false, "abc", V{2, V{"x", "y"}, 3.0}}};
-    auto a = V{1, 2, 3, ScriptParameter{V{1,2,false, "foo"}}, ScriptParameter {ScriptParameter {}}};
+int main() {
+  using V = std::vector<ScriptParameter>;
+  ScriptParameter k{V{1, false, "abc", V{2, V{"x", "y"}, 3.0}}};
+  auto a = V{1, 2, 3, ScriptParameter{V{1, 2, false, "foo"}}, ScriptParameter{ScriptParameter{}}};
 }

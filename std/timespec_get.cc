@@ -32,7 +32,7 @@ void loop() {
     }
 
     if (wallclock > 1000000000LL)
-      break ;
+      break;
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
@@ -49,7 +49,7 @@ int main() {
 
   // 秒未満の値をミリ秒で取得
   auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(
-      std::chrono::nanoseconds{ts.tv_nsec});
+    std::chrono::nanoseconds{ts.tv_nsec});
   std::cout << "ms:" << ms.count() << std::endl;
 
   // 秒以上の値だけを日時フォーマットで出力
