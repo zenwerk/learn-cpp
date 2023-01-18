@@ -58,25 +58,36 @@ public:
 // TODO: その後にいつでもメンバーを追加できるようにする
 class Ticker {
   WaitGroup wg;
-  std::list<Sub> subscriber;
+  std::list<Sub> pre_subscribers;
+  std::list<Sub> subscribers;
+
+  void register_subscribers() {
+    if (pre_subscribers.empty()) return;
+    for (auto sub: pre_subscribers) {
+      sub.set_waitgroup(&wg);
+      subscribers.push_back(sub);
+    }
+
+    pre_subscribers.clear();
+  }
 
 public:
   // サブスクライバー登録関数
   void add_subscriber(Sub &sub) {
-    sub.set_waitgroup(&wg);
-    subscriber.push_back(sub);
+    pre_subscribers.push_back(sub);
   }
 
   // TODO: Queueを追加しジョブを処理する
   void send_tick() {
-    for (auto sub : subscriber) {
+    for (auto sub: subscribers) {
       sub.tick();
     }
   }
 
   void run() {
     while (1) {
-      wg.Add(subscriber.size());
+      register_subscribers();
+      wg.Add(subscribers.size());
       std::this_thread::sleep_for(std::chrono::seconds{1});
       send_tick();
       wg.Wait();
