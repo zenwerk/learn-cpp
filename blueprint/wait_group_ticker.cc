@@ -60,6 +60,7 @@ class Ticker {
   WaitGroup wg;
   std::list<Sub> pre_subscribers;
   std::list<Sub> subscribers;
+  std::atomic<bool> done{false};
 
   void register_subscribers() {
     if (pre_subscribers.empty()) return;
@@ -85,7 +86,7 @@ public:
   }
 
   void run() {
-    while (1) {
+    while (!done) {
       register_subscribers();
       wg.Add(subscribers.size());
       std::this_thread::sleep_for(std::chrono::seconds{1});
@@ -93,6 +94,11 @@ public:
       wg.Wait();
     }
   }
+
+  void stop() {
+    done.store(true);
+  }
+
 };
 
 
@@ -100,6 +106,7 @@ int main() {
   Sub sub1{"sub1"};
   Sub sub2{"sub2"};
   Sub sub3{"sub3"};
+  Sub sub4{"sub4"};
 
   Ticker ticker;
 
@@ -108,6 +115,12 @@ int main() {
   ticker.add_subscriber(sub3);
 
   std::thread tick(&Ticker::run, &ticker);
+
+  std::this_thread::sleep_for(std::chrono::seconds{2});
+  ticker.add_subscriber(sub4);
+
+  std::this_thread::sleep_for(std::chrono::seconds{2});
+  ticker.stop();
 
   tick.join();
 
