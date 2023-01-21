@@ -5,6 +5,8 @@
 #include <utility>
 #include <list>
 
+#include "timer.h"
+
 std::mutex pmtx;
 
 void print(const std::string &s) {
@@ -47,17 +49,16 @@ public:
     wg = waitGroup;
   }
 
-  void tick() {
-    std::cout << name << ": tick!" << std::endl;
+  void tick(unsigned long long elapsed) {
+    std::cout << name << ": " << elapsed << " tick!" << std::endl;
     wg->Done();
   }
 };
 
 
-// TODO: まずは固定メンバーで実装する
-// TODO: その後にいつでもメンバーを追加できるようにする
 class Ticker {
   WaitGroup wg;
+  Timer timer;
   std::list<Sub> pre_subscribers;
   std::list<Sub> subscribers;
   std::atomic<bool> done{false};
@@ -79,23 +80,25 @@ public:
   }
 
   // TODO: Queueを追加しジョブを処理する
-  void send_tick() {
+  void send_tick(unsigned long long elapsed) {
     for (auto sub: subscribers) {
-      sub.tick();
+      sub.tick(elapsed);
     }
   }
 
   void run() {
+    timer.start();
     while (!done) {
       register_subscribers();
       wg.Add(subscribers.size());
-      std::this_thread::sleep_for(std::chrono::seconds{1});
-      send_tick();
+      unsigned long long elapsed = timer.get_elapsed<std::chrono::microseconds>();
+      send_tick(elapsed);
       wg.Wait();
     }
   }
 
   void stop() {
+    timer.stop();
     done.store(true);
   }
 
