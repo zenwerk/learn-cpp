@@ -60,5 +60,8 @@ add_executable(std-forward-list
 add_executable(std-operator-cast
     operator_cast.cc)
 
+add_executable(std-priority-queue
+        priority_queue.cc)
+
 add_executable(foo
     foo.cc)
