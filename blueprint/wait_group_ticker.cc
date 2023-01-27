@@ -154,14 +154,19 @@ int main() {
   sub3.add_task(t1);
   sub3.add_task(t2);
 
+  sub4.add_task(t3);
+  sub4.add_task(t4);
+  sub4.add_task(t1);
+  sub4.add_task(t2);
+
   ticker.add_subscriber(sub1);
   ticker.add_subscriber(sub2);
   ticker.add_subscriber(sub3);
 
   std::thread tick(&Ticker::run, &ticker);
 
-//  std::this_thread::sleep_for(std::chrono::seconds{1});
-//  ticker.add_subscriber(sub4);
+  std::this_thread::sleep_for(std::chrono::seconds{1});
+  ticker.add_subscriber(sub4);
 
   std::this_thread::sleep_for(std::chrono::seconds{5});
   ticker.stop();
