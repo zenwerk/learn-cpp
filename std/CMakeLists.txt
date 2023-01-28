@@ -6,9 +6,6 @@ add_executable(std-min-max-value-by-type
 add_executable(std-recursive-variant
     recursive_data_composition.cpp)
 
-add_executable(template-template-parameter
-    template_template_parameter.cc)
-
 add_executable(y-combinator
     y_combinator.cc)
 
@@ -35,9 +32,6 @@ add_executable(std-unique-ptr
 
 add_executable(std-string-input
     string_input.cc)
-
-add_executable(std-variadic-template
-    variadic_template.cc)
 
 add_executable(std-random-basic
     random.cc)

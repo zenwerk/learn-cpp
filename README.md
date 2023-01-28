@@ -6,8 +6,8 @@
 - [キャスト](./std/cast.cc)
 - [unique_ptr](./std/unique_ptr.cc)
 - [shared_ptr](./std/shared_ptr.cc)
-- [テンプレートを渡すテンプレート（テンプレートテンプレートパラメータ）](./std/template_template_parameter.cc)
-- [可変長引数テンプレート](./std/variadic_template.cc)
+- [テンプレートを渡すテンプレート（テンプレートテンプレートパラメータ）](template/template_template_parameter.cc)
+- [可変長引数テンプレート](template/variadic_template.cc)
 - [stdinからの文字入力](./std/string_input.cc)
 
 ## 応用

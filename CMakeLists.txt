@@ -56,6 +56,8 @@ add_subdirectory(caper)
 
 add_subdirectory(std)
 
+add_subdirectory(template)
+
 add_subdirectory(thread)
 
 add_subdirectory(libremidi)
