@@ -1,5 +1,6 @@
-﻿// 可変長引数テンプレート
-#include <iostream>
+﻿#include <iostream>
+
+// 可変長引数テンプレート
 
 struct Foo {
 };
