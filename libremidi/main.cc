@@ -12,7 +12,7 @@ void _sleep(int milliseconds) {
 #ifdef _WIN32
   Sleep(milliseconds);
 #else
-  sleep(miliseconds);
+  sleep(milliseconds);
 #endif
 }
 
