@@ -40,7 +40,7 @@ CPMAddPackage(
 CPMAddPackage(
     NAME libremidi
     GITHUB_REPOSITORY jcelerier/libremidi
-    GIT_TAG d514fac6ea7980c2faa166b8e68050f0779f6fec
+    GIT_TAG a170e09cfc354ea6d1db347f1b52a0e71cd0adbb
     OPTIONS "LIBREMIDI_HEADER_ONLY YES"
     )
 
