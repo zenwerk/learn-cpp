@@ -66,4 +66,6 @@ add_subdirectory(boost)
 
 add_subdirectory(cpp-rotor)
 
+add_subdirectory(pattern_match)
+
 add_subdirectory(blueprint)
