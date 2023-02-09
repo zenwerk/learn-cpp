@@ -1,16 +1,21 @@
 #include <iostream>
 
+// ラムダ式のオーバーロード: https://yohhoy.hatenadiary.jp/entry/20200715/p1
+// Modern C++17 Snippets: https://404-notfound.jp/archives/649
+
+// templateで関数オブジェクトを複数受け取る
 template<typename... Ts>
-class overloaded_lambdas : public Ts ... {
+class OverloadedLambdas : public Ts ... {
 public:
+  // using 宣言で基底クラス（ラムダ式のクロージャクラス）が提供するoperator()群をoverloadedクラス自身から公開する
   using Ts::operator()...;
 };
-// Deduction Guide
-template<typename... Ts> overloaded_lambdas(Ts &&...) -> overloaded_lambdas<Ts...>;
+// テンプレート引数<Ts...>の補助推論 (C++20からは不要になるらしい)
+template<typename... Ts> OverloadedLambdas(Ts &&...) -> OverloadedLambdas<Ts...>;
 
 
 int main() {
-  overloaded_lambdas print_type{
+  OverloadedLambdas print_type{
     [&](int &n) { std::cout << "int: " << n << std::endl; },
     [&](char &c) { std::cout << "char: " << c << std::endl; },
     [&](float &n) { std::cout << "float: " << n << std::endl; }
