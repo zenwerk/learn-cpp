@@ -14,7 +14,7 @@ int main() {
   std::vector<MyVariant> vs{1, "foo", 3.14f, 1.414};
 
   // パターンマッチ関数群
-  // visit で適用する場合は返り値の型は1つだけ
+  // visit で適用するラムダ式の返り値の型は１つに統一すること
   auto match_funcs = [](auto &&val) {
     using T = std::decay_t<decltype(val)>;
     if constexpr (std::is_same_v<T, int>)
@@ -26,6 +26,7 @@ int main() {
     else if constexpr (std::is_same_v<T, float>)
       std::cout << "float: " << val << std::endl;
     else
+      // 未対応の型が残っているとき、コンパイルに失敗するようにする
       static_assert(false_v<T>);
   };
 
