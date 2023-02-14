@@ -7,6 +7,9 @@
 #include "wait_group.h"
 
 
+// 楽器ごとに MIDI 接続先があり、楽器ごとにバッファを持つ
+
+
 auto compare = [](const std::shared_ptr<Task>& a, const std::shared_ptr<Task>& b) { return a->wait > b->wait; };
 
 class Instrument {
