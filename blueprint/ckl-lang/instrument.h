@@ -3,12 +3,13 @@
 
 #include <string>
 #include <queue>
+
 #include "task.h"
+#include "utils.h"
 #include "wait_group.h"
 
 
-// 楽器ごとに MIDI 接続先があり、楽器ごとにバッファを持つ
-
+// TODO: 楽器ごとに MIDI 接続先があり、楽器ごとにバッファを持つ
 
 auto compare = [](const std::shared_ptr<Task>& a, const std::shared_ptr<Task>& b) { return a->wait > b->wait; };
 
@@ -30,6 +31,7 @@ public:
 
   void add_task(const std::shared_ptr<Task>& task) {
     q.push(task);
+    print(name + ": 残りタスク数 = " + std::to_string(q.size()));
   }
 
   void tick(unsigned long long elapsed) {
