@@ -20,7 +20,7 @@ struct Point{
 };
 
 // 推論補助の宣言
-// 配列の要素型をPointWithArrayクラスの実引数とみなす宣言。
+// 配列の要素型をPointクラスの実引数とみなす宣言。
 template<class Array>
 Point(Array ar) -> Point<decltype(ar[0])>;
 
