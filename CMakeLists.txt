@@ -69,3 +69,5 @@ add_subdirectory(cpp-rotor)
 add_subdirectory(pattern_match)
 
 add_subdirectory(blueprint)
+
+add_subdirectory(chatgpt)
