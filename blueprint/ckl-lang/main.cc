@@ -43,6 +43,7 @@ int main() {
   ticker.add_instrument(inst3);
 
   std::thread tick(&Ticker::run, &ticker);
+  //std::thread tick(&Ticker::run_with_timespec_get, &ticker);
 
   std::this_thread::sleep_for(std::chrono::seconds{1});
   ticker.add_instrument(inst4);

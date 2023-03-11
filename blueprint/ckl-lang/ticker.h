@@ -49,7 +49,8 @@ public:
   void run() {
     timer.start();
     while (!done) {
-      std::this_thread::sleep_for(std::chrono::microseconds(2));
+      // TODO: CPU使用率を減らすためスリープしているが人間が遅延を感じるのは 0.1s = 100ms からなので許容範囲内か？
+      std::this_thread::sleep_for(std::chrono::microseconds (500));
       register_instruments();
       wg.Add(instruments.size());
       unsigned long long elapsed = timer.get_elapsed<std::chrono::microseconds>();
@@ -57,6 +58,36 @@ public:
       wg.Wait();
     }
   }
+
+  /*
+  void run_with_timespec_get() {
+    timespec ts{}, ts_last{};
+    if (timespec_get(&ts_last, TIME_UTC) < 0) {
+      print("ERROR: timespec_get() failed");
+      return;
+    }
+
+    while (!done) {
+      register_instruments();
+
+      timespec_get(&ts, TIME_UTC);
+      delta_nsec = 1000000000LL * (ts.tv_sec - ts_last.tv_sec); // 10億 * (秒差分)
+      delta_nsec += ts.tv_nsec - ts_last.tv_nsec;               // nano秒差分
+
+      if (delta_nsec > 0) {
+        ts_last = ts; // 呼び出し時刻を更新
+
+        if (delta_nsec < 1000000000LL) { // 経過時間が1秒未満
+          // nano秒をマイクロ秒に変換
+          send_tick(delta_nsec / 1000);
+        } else {
+          print("WARNING: ignored huge clock delta");
+        }
+      }
+    }
+
+  }
+  */
 
   void stop() {
     timer.stop();
