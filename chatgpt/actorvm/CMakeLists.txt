@@ -5,3 +5,6 @@ add_executable(chatgpt-actorvm-01
 
 add_executable(chatgpt-actorvm-02
         actorvm_02.cc)
+
+add_executable(chatgpt-actorvm-03
+        actorvm_03.cc)
