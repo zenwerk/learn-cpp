@@ -107,8 +107,9 @@ int main() {
 
   actor1->send(actor2, "Hello from actor 1!");
   actor2->send(actor1, "Hello from actor 2!");
-  actor1->send(actor1, "stop");
-  actor2->send(actor2, "stop");
+
+  actor1->stop();
+  actor2->send(actor2, "stop"); // 自身にメッセージ送信しても良い
 
   std::this_thread::sleep_for(std::chrono::seconds(1));
 
