@@ -13,12 +13,12 @@ class ActorSystem;
 
 class Actor {
 public:
-  Actor(ActorSystem &actor_system)
+  explicit Actor(ActorSystem &actor_system)
     : actor_system_(actor_system), is_running_(true), actor_thread_(&Actor::run, this) {}
 
   virtual void receive(const std::string &message) = 0;
 
-  void send(std::shared_ptr<Actor> receiver, const std::string& message) {
+  void send(const std::shared_ptr<Actor> &receiver, const std::string &message) {
     if (receiver.get() != this) {
       receiver->enqueue_message(message);
     } else {
@@ -46,12 +46,11 @@ public:
     }
   }
 
-  void enqueue_message(const std::string& message) {
+  void enqueue_message(const std::string &message) {
     std::lock_guard<std::mutex> lock(mutex_);
     messages_.push(message);
     cv_.notify_one();
   }
-
 
 protected:
   ActorSystem &actor_system_;
@@ -64,7 +63,7 @@ protected:
 
 class ActorSystem {
 public:
-  std::shared_ptr<Actor> spawn(std::function<std::shared_ptr<Actor>(ActorSystem &)> actor_constructor) {
+  std::shared_ptr<Actor> spawn(const std::function<std::shared_ptr<Actor>(ActorSystem &)>& actor_constructor) {
     std::shared_ptr<Actor> actor = actor_constructor(*this);
     std::lock_guard<std::mutex> lock(actors_mutex_);
     actors_[actor.get()] = actor;
@@ -72,7 +71,7 @@ public:
   }
 
   template<typename T, typename... Args>
-  std::shared_ptr<T> spawn(Args&&... args) {
+  std::shared_ptr<T> spawn(Args &&... args) {
     static_assert(std::is_base_of<Actor, T>::value, "T must be derived from Actor");
     std::shared_ptr<T> actor = std::make_shared<T>(*this, std::forward<Args>(args)...);
     actors_[actor.get()] = actor;
@@ -108,12 +107,10 @@ int main() {
 
   actor1->send(actor2, "Hello from actor 1!");
   actor2->send(actor1, "Hello from actor 2!");
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   actor1->send(actor1, "stop");
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   actor2->send(actor2, "stop");
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  std::this_thread::sleep_for(std::chrono::seconds(1));
 
   return 0;
 }
