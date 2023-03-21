@@ -1,4 +1,4 @@
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 add_executable(std-thread-basic
     basic.cc)
@@ -26,5 +26,8 @@ add_executable(join-thread-cpp14
 
 add_executable(std-thread-waitgroup
     wait_group.cc)
+
+add_executable(std-thread-input-and-echo
+    input_and_echo.cc)
 
 add_subdirectory(ccia-mpi-example)
