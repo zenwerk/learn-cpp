@@ -5,17 +5,15 @@ class MyActor : public Actor {
 public:
   using Actor::Actor;
 
-  void receive(const Message &message) override {
-    std::visit([this](const auto &msg) {
-      using T = std::decay_t<decltype(msg)>;
-      if constexpr (std::is_same_v<T, PrintMessage>) {
-        std::cout << "Received message: " << msg.text << std::endl;
-      } else if constexpr (std::is_same_v<T, StopMessage>) {
-        stop();
-      }
-    }, message);
+  void receive(const std::any &msg) override {
+    if (const PrintMessage *print_msg = std::any_cast<PrintMessage>(&msg)) {
+      std::cout << "Received message: " << print_msg->text << std::endl;
+    } else if (std::any_cast<StopMessage>(&msg)) {
+      stop();
+    }
   }
 };
+
 
 int main() {
   ActorSystem actor_system;

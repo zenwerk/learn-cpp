@@ -11,6 +11,7 @@
 #include <memory>
 #include <functional>
 #include <atomic>
+#include <any>
 
 #include "messages.h"
 
@@ -21,13 +22,14 @@ public:
   explicit Actor(ActorSystem &actor_system)
     : actor_system_(actor_system), is_running_(true), actor_thread_(&Actor::run, this) {}
 
-  virtual void receive(const Message &message) = 0;
+  virtual void receive(const std::any &msg) = 0;
 
-  void send(const std::shared_ptr<Actor> &receiver, const Message &message) {
+  template<typename Msg>
+  void send(const std::shared_ptr<Actor> &receiver, const Msg &msg) {
     if (receiver.get() != this) {
-      receiver->enqueue_message(message);
+      receiver->enqueue_message(msg);
     } else {
-      receiver->receive(message);
+      receiver->receive(msg);
     }
   }
 
@@ -37,31 +39,32 @@ public:
     actor_thread_.join();
   }
 
+protected:
   void run() {
     while (is_running_) {
       std::unique_lock<std::mutex> lock(mutex_);
       cv_.wait(lock, [this] { return !messages_.empty() || !is_running_; });
 
       if (!messages_.empty()) {
-        Message message = std::move(messages_.front());
+        std::any msg = std::move(messages_.front());
         messages_.pop();
         lock.unlock();
-        receive(message);
+        receive(msg);
       }
     }
   }
 
-  void enqueue_message(const Message &message) {
+  template<typename Msg>
+  void enqueue_message(const Msg &msg) {
     std::lock_guard<std::mutex> lock(mutex_);
-    messages_.push(message);
+    messages_.push(std::any(msg));
     cv_.notify_one();
   }
 
-protected:
   ActorSystem &actor_system_;
   std::atomic<bool> is_running_;
   std::thread actor_thread_;
-  std::queue<Message> messages_;
+  std::queue<std::any> messages_;
   std::mutex mutex_;
   std::condition_variable cv_;
 };
