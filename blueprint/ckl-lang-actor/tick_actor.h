@@ -28,6 +28,13 @@ public:
     pending_responses_[actor.get()] = false;
   }
 
+  void remove_actor(const std::shared_ptr<Actor> &actor) {
+    std::lock_guard<std::mutex> lock(registered_actors_mutex_);
+    // registered_actors_.erase(std::remove(registered_actors_.begin(), registered_actors_.end(), actor), registered_actors_.end());
+    std::erase(registered_actors_, actor);
+    pending_responses_.erase(actor.get());
+  }
+
   void receive(const std::any &message) override {
     if (const TickResponse *tick_response = std::any_cast<TickResponse>(&message)) {
       handle_tick_response(*tick_response);

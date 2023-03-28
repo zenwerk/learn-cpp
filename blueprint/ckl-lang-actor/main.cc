@@ -33,7 +33,9 @@ int main() {
 
   ticker->start_ticking();
 
-  std::this_thread::sleep_for(std::chrono::seconds(2));
+  std::this_thread::sleep_for(std::chrono::milliseconds (500));
+  ticker->remove_actor(actor1);
+  std::this_thread::sleep_for(std::chrono::milliseconds (500));
 
   actor1->stop();
   actor2->send(actor2, StopMessage{});
