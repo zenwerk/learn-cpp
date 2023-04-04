@@ -10,7 +10,7 @@ public:
     if (const PrintMessage *print_msg = std::any_cast<PrintMessage>(&msg)) {
       std::cout << "Received message: " << print_msg->text << std::endl;
     } else if (const TickMessage *tick_msg = std::any_cast<TickMessage>(&msg)) {
-      std::cout << "Received Tick: duration = " << tick_msg->elapsed_time.count() << "μs" << std::endl;
+      std::cout << "Received Tick: duration = " << tick_msg->elapsed_time.count() << "μs" << " | accumulated_time " << tick_msg->accumulated_time.count() << "μs" << std::endl;
       send(tick_msg->sender, TickResponse{shared_from_this()});
     } else if (std::any_cast<StopMessage>(&msg)) {
       stop();

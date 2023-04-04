@@ -11,6 +11,7 @@
 
 struct TickMessage {
   std::chrono::microseconds elapsed_time{};
+  std::chrono::microseconds accumulated_time{};
   std::shared_ptr<Actor> sender{};
 };
 
@@ -45,6 +46,7 @@ public:
 
   void start_ticking() {
     last_tick_time_ = std::chrono::steady_clock::now();
+    accumulated_time_ = std::chrono::microseconds(0);
     tick();
   }
 
@@ -68,10 +70,12 @@ private:
     auto now = std::chrono::steady_clock::now();
     auto elapsed_time = std::chrono::duration_cast<std::chrono::microseconds>(now - last_tick_time_);
     last_tick_time_ = now;
+    // Update accumulated_time_ with elapsed_time
+    accumulated_time_ += elapsed_time;
 
     std::lock_guard<std::mutex> lock(registered_actors_mutex_);
     for (const auto &actor: registered_actors_) {
-      send(actor, TickMessage{elapsed_time, shared_from_this()});
+      send(actor, TickMessage{elapsed_time, accumulated_time_, shared_from_this()});
       pending_responses_[actor.get()] = true;
     }
   }
@@ -80,6 +84,7 @@ private:
   std::map<Actor *, bool> pending_responses_;
   std::mutex registered_actors_mutex_;
   std::chrono::steady_clock::time_point last_tick_time_;
+  std::chrono::microseconds accumulated_time_;
 };
 
 #endif //AWESOMEPROJECTCPP_TICK_ACTOR_H
