@@ -50,6 +50,10 @@ public:
     tick();
   }
 
+  [[nodiscard]] const std::chrono::microseconds &get_accumulated_time() const {
+    return accumulated_time_;
+  }
+
 private:
   void handle_tick_response(const TickResponse &resp) {
     {
