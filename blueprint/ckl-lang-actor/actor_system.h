@@ -13,7 +13,6 @@
 #include <atomic>
 #include <any>
 
-#include "messages.h"
 
 class ActorSystem;
 
