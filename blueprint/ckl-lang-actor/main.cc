@@ -1,3 +1,9 @@
+// TODO: REPL雛形に必要
+// #include <iostream>
+// #include <sstream>
+// #include <string>
+// #include <vector>
+
 #include "actor_system.h"
 #include "messages.h"
 #include "tick_actor.h"
@@ -49,6 +55,38 @@ int main() {
   actor2->send(actor2, StopMessage{});
   ticker->stop();
   executer->stop();
+
+/*TODO: REPLの雛形
+  std::string input;
+  while (true) {
+    std::cout << "$> ";
+    std::getline(std::cin, input);
+
+    if (input == "quit") {
+      break;
+    }
+
+    std::istringstream iss(input);
+    std::vector<std::string> tokens;
+    std::string token;
+    while (std::getline(iss, token, ' ')) {
+      tokens.push_back(token);
+    }
+
+    if (!tokens.empty()) {
+      const auto& command = tokens[0];
+      if (command == "create") {
+        // TODO: create Actor;
+        std::cout << "function1" << std::endl;
+      } else if (command == "echo") {
+        // TODO: echo Message;
+        std::cout << "function2" << std::endl;
+      } else {
+        std::cout << "Invalid command.\n";
+      }
+    }
+  }
+*/
 
   return 0;
 }
