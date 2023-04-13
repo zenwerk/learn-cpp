@@ -70,23 +70,38 @@ protected:
 
 class ActorSystem {
 public:
-  std::shared_ptr<Actor> spawn(const std::function<std::shared_ptr<Actor>(ActorSystem &)> &actor_constructor) {
+  std::shared_ptr<Actor> spawn(const std::function<std::shared_ptr<Actor>(ActorSystem &)> &actor_constructor, const std::string &name) {
     std::shared_ptr<Actor> actor = actor_constructor(*this);
     std::lock_guard<std::mutex> lock(actors_mutex_);
-    actors_[actor.get()] = actor;
+    if (actors_.find(name) != actors_.end()) {
+      return nullptr;
+    }
+    actors_[name] = actor;
     return actor;
   }
 
   template<typename T, typename... Args>
-  std::shared_ptr<T> spawn(Args &&... args) {
+  std::shared_ptr<T> spawn(const std::string &name, Args &&... args) {
     static_assert(std::is_base_of<Actor, T>::value, "T must be derived from Actor");
     std::shared_ptr<T> actor = std::make_shared<T>(*this, std::forward<Args>(args)...);
-    actors_[actor.get()] = actor;
+    if (actors_.find(name) != actors_.end()) {
+      return nullptr;
+    }
+    actors_[name] = actor;
     return actor;
   }
 
+  std::shared_ptr<Actor> get_actor(const std::string &name) {
+    std::lock_guard<std::mutex> lock(actors_mutex_);
+    auto it = actors_.find(name);
+    if (it != actors_.end()) {
+      return it->second;
+    }
+    return nullptr;
+  }
+
 private:
-  std::map<Actor *, std::shared_ptr<Actor>> actors_;
+  std::map<std::string, std::shared_ptr<Actor>> actors_;;
   std::mutex actors_mutex_;
 };
 

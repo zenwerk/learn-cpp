@@ -28,25 +28,25 @@ public:
 
 int main() {
   ActorSystem actor_system;
-  auto actor1 = actor_system.spawn([](ActorSystem &actor_system) { return std::make_shared<MyActor>(actor_system); });
-  auto actor2 = actor_system.spawn<MyActor>();
-  auto ticker = actor_system.spawn<TickerActor>();
-  auto executer = actor_system.spawn<ScheduledTaskActor>();
+  auto actor1 = actor_system.spawn([](ActorSystem &actor_system) { return std::make_shared<MyActor>(actor_system); }, "actor1");
+  auto actor2 = actor_system.spawn<MyActor>("actor2");
+  auto ticker = actor_system.spawn<TickerActor>("ticker");
+  auto executor = actor_system.spawn<ScheduledTaskActor>("executor");
 
   actor1->send(actor2, PrintMessage{"Hello from actor 1!"});
   actor2->send(actor1, PrintMessage{"Hello from actor 2!"});
 
   ticker->add_actor(actor1);
   ticker->add_actor(actor2);
-  ticker->add_actor(executer);
+  ticker->add_actor(executor);
 
-  executer->enqueue_task(std::chrono::microseconds{20000}, [] { std::cout << "TASK at 20,000μs" << std::endl; });
+  executor->enqueue_task(std::chrono::microseconds{20000}, [] { std::cout << "TASK at 20,000μs" << std::endl; });
 
   ticker->start_ticking();
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   auto scheduled_time = ticker->get_accumulated_time().count() + (2 * 1000000);
-  executer->enqueue_task(std::chrono::microseconds{scheduled_time}, [] { std::cout << "TASK at 2,000,000μs" << std::endl; });
+  executor->enqueue_task(std::chrono::microseconds{scheduled_time}, [] { std::cout << "TASK at 2,000,000μs" << std::endl; });
 
   ticker->remove_actor(actor1);
   std::this_thread::sleep_for(std::chrono::seconds(3));
@@ -54,7 +54,7 @@ int main() {
   actor1->stop();
   actor2->send(actor2, StopMessage{});
   ticker->stop();
-  executer->stop();
+  executor->stop();
 
 /*TODO: REPLの雛形
   std::string input;
