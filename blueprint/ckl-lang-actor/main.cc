@@ -28,7 +28,7 @@ public:
 
 int main() {
   ActorSystem actor_system;
-  auto actor1 = actor_system.spawn([](ActorSystem &actor_system) { return std::make_shared<MyActor>(actor_system); }, "actor1");
+  auto actor1 = actor_system.spawn([](ActorSystem &as, std::string name) { return std::make_shared<MyActor>(as, name); }, "actor1");
   auto actor2 = actor_system.spawn<MyActor>("actor2");
   auto ticker = actor_system.spawn<TickerActor>("ticker");
   auto executor = actor_system.spawn<ScheduledTaskActor>("executor");
@@ -55,6 +55,11 @@ int main() {
   actor2->send(actor2, StopMessage{});
   ticker->stop();
   executor->stop();
+
+  actor_system.remove_actor(actor1->get_name());
+  actor_system.remove_actor(actor2->get_name());
+  actor_system.remove_actor(ticker->get_name());
+  actor_system.remove_actor(executor->get_name());
 
 /*TODO: REPLの雛形
   std::string input;

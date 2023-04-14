@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <thread>
+#include <utility>
 #include <vector>
 #include <map>
 #include <mutex>
@@ -18,8 +19,8 @@ class ActorSystem;
 
 class Actor : public std::enable_shared_from_this<Actor> {
 public:
-  explicit Actor(ActorSystem &actor_system)
-    : actor_system_(actor_system), is_running_(true), actor_thread_(&Actor::run, this) {}
+  explicit Actor(ActorSystem &actor_system, std::string name)
+    : actor_system_(actor_system), name_(std::move(name)), is_running_(true), actor_thread_(&Actor::run, this) {}
 
   virtual void receive(const std::any &msg) = 0;
 
@@ -36,6 +37,10 @@ public:
     is_running_ = false;
     cv_.notify_one();
     actor_thread_.join();
+  }
+
+  std::string get_name() const {
+    return name_;
   }
 
 protected:
@@ -61,6 +66,7 @@ protected:
   }
 
   ActorSystem &actor_system_;
+  std::string name_;
   std::atomic<bool> is_running_;
   std::thread actor_thread_;
   std::queue<std::any> messages_;
@@ -70,8 +76,8 @@ protected:
 
 class ActorSystem {
 public:
-  std::shared_ptr<Actor> spawn(const std::function<std::shared_ptr<Actor>(ActorSystem &)> &actor_constructor, const std::string &name) {
-    std::shared_ptr<Actor> actor = actor_constructor(*this);
+  std::shared_ptr<Actor> spawn(const std::function<std::shared_ptr<Actor>(ActorSystem &, const std::string &)> &actor_constructor, const std::string &name) {
+    std::shared_ptr<Actor> actor = actor_constructor(*this, name);
     std::lock_guard<std::mutex> lock(actors_mutex_);
     if (actors_.find(name) != actors_.end()) {
       return nullptr;
@@ -83,7 +89,7 @@ public:
   template<typename T, typename... Args>
   std::shared_ptr<T> spawn(const std::string &name, Args &&... args) {
     static_assert(std::is_base_of<Actor, T>::value, "T must be derived from Actor");
-    std::shared_ptr<T> actor = std::make_shared<T>(*this, std::forward<Args>(args)...);
+    std::shared_ptr<T> actor = std::make_shared<T>(*this, name, std::forward<Args>(args)...);
     if (actors_.find(name) != actors_.end()) {
       return nullptr;
     }
@@ -98,6 +104,11 @@ public:
       return it->second;
     }
     return nullptr;
+  }
+
+  void remove_actor(const std::string &name) {
+    std::lock_guard<std::mutex> lock(actors_mutex_);
+    actors_.erase(name);
   }
 
 private:
