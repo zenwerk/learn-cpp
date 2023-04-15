@@ -1,8 +1,7 @@
-// TODO: REPL雛形に必要
-// #include <iostream>
-// #include <sstream>
-// #include <string>
-// #include <vector>
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <vector>
 
 #include "actor_system.h"
 #include "messages.h"
@@ -61,13 +60,13 @@ int main() {
   actor_system.remove_actor(ticker->get_name());
   actor_system.remove_actor(executor->get_name());
 
-/*TODO: REPLの雛形
   std::string input;
   while (true) {
     std::cout << "$> ";
     std::getline(std::cin, input);
 
     if (input == "quit") {
+      // TODO: 残っているアクターを全て終了させる
       break;
     }
 
@@ -79,19 +78,49 @@ int main() {
     }
 
     if (!tokens.empty()) {
-      const auto& command = tokens[0];
-      if (command == "create") {
-        // TODO: create Actor;
-        std::cout << "function1" << std::endl;
-      } else if (command == "echo") {
-        // TODO: echo Message;
-        std::cout << "function2" << std::endl;
+      const auto &command = tokens[0];
+      if (command == "create" && tokens.size() == 3) {
+        std::string actor_name = tokens[1];
+        std::string actor_type = tokens[2];
+        // TODO: アクターの種類を文字列で指定
+        if (actor_type == "MyActor") {
+          auto actor = actor_system.spawn<MyActor>(actor_name);
+          if (actor) {
+            std::cout << "Created MyActor with name: " << actor_name << std::endl;
+          } else {
+            std::cout << "Failed to create EchoActor with name: " << actor_name << std::endl;
+          }
+        } else {
+          std::cout << "Unknown actor type: " << actor_type << std::endl;
+        }
+      } else if (command == "send" && tokens.size() == 3) {
+        std::string actor_name = tokens[1];
+        std::string message = tokens[2];
+        // TODO: アクターの種類によって送信するメッセージを分ける
+        auto actor = actor_system.get_actor(actor_name);
+        if (actor) {
+          actor->send(actor, PrintMessage{message});
+        } else {
+          std::cout << "Actor not found: " << actor_name << std::endl;
+        }
+      } else if (command == "stop" && tokens.size() == 2) {
+        std::string actor_name = tokens[1];
+        auto actor = actor_system.get_actor(actor_name);
+        if (actor) {
+          actor->stop();
+          std::cout << "Stopped actor: " << actor_name << std::endl;
+        } else {
+          std::cout << "Actor not found: " << actor_name << std::endl;
+        }
+      } else if (command == "remove" && tokens.size() == 2) {
+        std::string actor_name = tokens[1];
+        actor_system.remove_actor(actor_name);
+        std::cout << "Removing actor: " << actor_name << std::endl;
       } else {
-        std::cout << "Invalid command.\n";
+        std::cout << "Invalid command or wrong number of arguments.\n";
       }
     }
   }
-*/
 
   return 0;
 }
