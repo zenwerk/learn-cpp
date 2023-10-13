@@ -55,7 +55,7 @@ add_executable(std-operator-cast
     operator_cast.cc)
 
 add_executable(std-priority-queue
-        priority_queue.cc)
+    priority_queue.cc)
 
-add_executable(foo
-    foo.cc)
+add_executable(std-multibyte-char-split
+    mutibyte_char_split.cc)
