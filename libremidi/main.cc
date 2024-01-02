@@ -22,9 +22,9 @@ int main() {
   // Enumerating midi input ports
   libremidi::midi_in min;
   for (int i = 0, N = min.get_port_count(); i < N; i++)
-    std::cout << "MIDI IN: " << min.get_port_name(i) << std::endl;
+    std::cout << "MIDI IN[" << i << "]: " << min.get_port_name(i) << std::endl;
 
-  // open default midi input port and set callback;
+  // open the default midi input port and set callback;
   min.open_port();
   min.set_callback([](const libremidi::message &msg) {
     std::cout << "------------------------" << std::endl;
@@ -37,7 +37,7 @@ int main() {
   // Enumerating midi output ports
   libremidi::midi_out mout;
   for (int i = 0, N = mout.get_port_count(); i < N; i++)
-    std::cout << "MIDI OUT: " << mout.get_port_name(i) << std::endl;
+    std::cout << "MIDI OUT[" << i << "]: " << mout.get_port_name(i) << std::endl;
 
   // open default midi output port
   mout.open_port();

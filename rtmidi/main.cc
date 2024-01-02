@@ -11,7 +11,7 @@ void _sleep(int milliseconds) {
 #ifdef _WINDOWS
   Sleep(milliseconds);
 #else
-  sleep(miliseconds);
+  sleep(milliseconds);
 #endif
 }
 

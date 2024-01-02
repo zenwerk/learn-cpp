@@ -13,7 +13,7 @@ add_compile_options(
 CPMAddPackage(
     NAME rtmidi
     GITHUB_REPOSITORY thestk/rtmidi
-    GIT_TAG 4.0.0
+    GIT_TAG 6.0.0
     OPTIONS "RTMIDI_BUILD_STATIC_LIBS YES"
     )
 
