@@ -70,4 +70,6 @@ add_subdirectory(pattern_match)
 
 add_subdirectory(blueprint)
 
+add_subdirectory(push-parser)
+
 add_subdirectory(chatgpt)
