@@ -32,18 +32,36 @@ auto lex_token_list = std::vector<tokname_t>{
   {TOK_ERR, "ERROR"},
 };
 
+std::vector<std::string> lex_type_list = {
+  "TOK_EOF",
+  "TOK_ERR",
+  "TOK_NUM",
+  "TOK_PLUS",
+  "TOK_MINUS",
+  "TOK_SLASH",
+  "TOK_ASTERISK",
+  "TOK_LP",
+  "TOK_RP",
+  "TOK_NL",
+  "TOK_SEMICOLON",
+};
+
+void log_tk(lex_token_t& tk) {
+  std::cout << lex_type_list[tk.type-1] << ":\"" << tk.lexeme << "\"" << std::endl;
+}
+
 void lex_log_token(lex_token_t& tk) {
   for (auto &t : lex_token_list) {
     if (t.type == tk.type) {
       if (t.type == TOK_NUM) {
-        std::cout << "token: " << tk.lexeme << " -- line:" << tk.line << std::endl;
+        std::cout << "token: " << tk.lexeme << ", line " << tk.line << std::endl;
       } else {
-        std::cout << "token: " << t.str << " -- line:" << tk.line << std::endl;
+        std::cout << "token: " << t.str << ", line " << tk.line << std::endl;
       }
       return;
     }
   }
-  std::cout << "unknown token: " << tk.lexeme << " -- line:" << tk.line << std::endl;
+  std::cout << "unknown token: " << tk.lexeme << ", line " << tk.line << std::endl;
 }
 
 void lex_init(lex_t& lex) {

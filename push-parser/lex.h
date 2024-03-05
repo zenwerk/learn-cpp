@@ -41,6 +41,7 @@ lex_token_t lex_scan_token(lex_t&);
 lex_token_t lex_create_token(lex_t&, unsigned int, const std::string&);
 lex_token_t lex_create_number_token(lex_t&, std::string&);
 lex_token_t lex_create_identifier_token(lex_t&, std::string&);
+void log_tk(lex_token_t&);
 void lex_log_token(lex_token_t&);
 
 
