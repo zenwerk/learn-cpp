@@ -19,6 +19,7 @@ enum TOK_TYPE {
   TOK_LP, // (
   TOK_RP, // )
   TOK_NL, // \n
+  TOK_SEMICOLON, // ;
 };
 
 struct lex_t {
@@ -35,8 +36,8 @@ struct lex_token_t {
 };
 
 void lex_init(lex_t&);
-std::string lex_peek(lex_t &lex);
-std::string lex_advance(lex_t &lex);
+std::string lex_peek(lex_t&);
+std::string lex_advance(lex_t&);
 lex_token_t lex_scan_token(lex_t&);
 lex_token_t lex_create_token(lex_t&, unsigned int, const std::string&);
 lex_token_t lex_create_number_token(lex_t&, std::string&);

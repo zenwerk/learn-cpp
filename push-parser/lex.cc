@@ -126,6 +126,7 @@ lex_token_t lex_scan_token(lex_t& lex) {
     else if (ch == "-") return lex_create_token(lex, TOK_MINUS, ch);
     else if (ch == "*") return lex_create_token(lex, TOK_ASTERISK, ch);
     else if (ch == "/") return lex_create_token(lex, TOK_SLASH, ch);
+    else if (ch == ";") return lex_create_token(lex, TOK_SEMICOLON, ch);
     else if (is_digit(ch)) return lex_create_number_token(lex, ch);
     //else if (is_alpha(ch)) return lex_create_identifier_token(lex, ch);
     else if (ch.empty()) return lex_create_token(lex, TOK_EOF, ch);
