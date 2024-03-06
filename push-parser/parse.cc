@@ -51,7 +51,7 @@ void parse_end(parse_t& p) {
   if (!p.stack.empty())
     p.stack.pop();
   else {
-    std::cerr << __LINE__ << ":stack is empty" << std::endl;
+    std::cerr << "Error: stack is empty at parse_end." << std::endl;
     exit(1);
   }
 }
@@ -60,7 +60,7 @@ void parse_set_state(parse_t& p, unsigned int new_state) {
   if (!p.stack.empty())
     p.stack.top().pstate = new_state;
   else {
-    std::cerr << __LINE__ << ":stack is empty" << std::endl;
+    std::cerr << "Error: stack is empty at parse_set_state." << std::endl;
     exit(1);
   }
 }
