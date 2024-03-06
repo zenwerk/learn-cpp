@@ -113,12 +113,8 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
     case PARSE_PROG:
       if (CONSUMED || tok_type == TOK_EOF)
         return;
-      parse_set_state(p, PARSE_PROG_1);
+      parse_set_state(p, PARSE_ENDL);
       parse_begin(p, PARSE_EXPR);
-      break;
-    case PARSE_PROG_1:
-      parse_found(p);
-      parse_set_state(p, PARSE_PROG);
       break;
     /*
      * expr: mul ("+" mul | "-" mul)*
@@ -133,14 +129,11 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       if (CONSUMED)
         return;
       if (tok_type == TOK_PLUS) {
-        // TODO
-        std::cout << "Found plus: " << tok.lexeme << std::endl;
+        // TODO: create plus node
       } else if (tok_type == TOK_MINUS) {
-        // TODO
-        std::cout << "Found minus: " << tok.lexeme << std::endl;
+        // TODO: create minus node
       } else {
-        parse_set_state(p, PARSE_ENDL);
-        //parse_end(p);
+        parse_end(p);
         break;
       }
       CONSUME;
@@ -158,10 +151,8 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         return;
       if (tok_type == TOK_ASTERISK) {
         // TODO: create mul node
-        std::cout << "Found mul: " << tok.lexeme << std::endl;
       } else if (tok_type == TOK_SLASH) {
         // TODO: create div node
-        std::cout << "Found div: " << tok.lexeme << std::endl;
       } else {
         parse_end(p);
         break;
@@ -177,7 +168,6 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         return;
       if (tok_type == TOK_NUM) {
         // TODO: create number node
-        //std::cout << "Found number: " << tok.lexeme << std::endl;
         parse_end(p);
       } else if (tok_type == TOK_LP) {
         parse_set_state(p, PARSE_PRIMARY_1);
@@ -195,7 +185,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         parse_error(p, tok, "expected \")\"");
         break;
       }
-      // TODO: create primary node
+      // TODO: create expr node
       parse_end(p);
       CONSUME;
       break;
@@ -204,6 +194,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         return;
       if (tok_type == TOK_SEMICOLON || tok_type == TOK_NL) {
         CONSUME;
+        parse_found(p);
         parse_end(p);
         break;
       }

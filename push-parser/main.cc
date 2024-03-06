@@ -3,7 +3,7 @@
 #include "parse.h"
 
 int main() {
-  std::string in = "99\n"; //"(1 + 2) * 3";
+  std::string in = "(1 + 2) * 3\n";
   lex_t lex;
   lex_init(lex);
 
