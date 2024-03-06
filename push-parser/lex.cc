@@ -83,7 +83,7 @@ void lex_init(lex_t& lex) {
 //  std::cout << " -- Line:" << line << std::endl;
 //}
 
-lex_token_t lex_create_token(lex_t& lex, unsigned int type, const std::string& lexeme) {
+lex_token_t lex_create_token(lex_t& lex, tok_type type, const std::string& lexeme) {
   return lex_token_t{type, lexeme, lex.line};
 }
 

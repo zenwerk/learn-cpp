@@ -7,7 +7,7 @@
 #include <utility>
 
 
-enum TOK_TYPE {
+enum tok_type {
   TOK_EOF = 1,
   TOK_ERR,
   TOK_NUM,
@@ -30,7 +30,7 @@ struct lex_t {
 };
 
 struct lex_token_t {
-  unsigned int type; // 字句の種類
+  tok_type type; // 字句の種類
   std::string lexeme; // 実際の文字
   uint32_t line; // 何行目か
 };
