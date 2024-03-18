@@ -1,5 +1,6 @@
 #include <iostream>
 #include <string>
+#include <utility>
 #include "parse.h"
 
 /*
@@ -12,7 +13,7 @@
 
 static bool parse_debug = true;
 
-enum PARSE_STATE {
+enum parse_state {
   PARSE_PROG, PARSE_PROG_1,
   PARSE_EXPR, PARSE_EXPR_1,
   PARSE_MUL, PARSE_MUL_1,
@@ -43,8 +44,8 @@ void parse_found(parse_t& p) {
   std::cout << "TODO: parse found !!" << std::endl;
 }
 
-void parse_begin(parse_t& p, unsigned int new_state) {
-  p.stack.push({new_state});
+void parse_begin(parse_t& p, parse_state new_state, std::shared_ptr<node> nd) {
+  p.stack.push({new_state, std::move(nd)});
 }
 
 void parse_end(parse_t& p) {
@@ -68,7 +69,7 @@ void parse_set_state(parse_t& p, unsigned int new_state) {
 void parse_init(parse_t& p) {
   p.root = nullptr;
   p.stack = std::stack<pstate_t>();
-  parse_begin(p, PARSE_PROG);
+  parse_begin(p, PARSE_PROG, p.root);
 }
 
 void parse_error(parse_t& p, lex_token_t& tok, const std::string& msg) {
@@ -93,7 +94,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       exit(1);
     }
 
-    if (parse_debug) {
+    if (parse_debug && !p.stack.empty()) {
       for (int i = 1; i < p.stack.size(); i++)
         std::cout << ".  ";
       std::cout << parse_state_list[p.stack.top().pstate] << std::endl;
@@ -114,7 +115,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       if (CONSUMED || tok_type == TOK_EOF)
         return;
       parse_set_state(p, PARSE_ENDL);
-      parse_begin(p, PARSE_EXPR);
+      parse_begin(p, PARSE_EXPR, top.pnode);
       break;
     /*
      * expr: mul ("+" mul | "-" mul)*
@@ -123,61 +124,78 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       if (CONSUMED)
         return;
       parse_set_state(p, PARSE_EXPR_1);
-      parse_begin(p, PARSE_MUL);
+      parse_begin(p, PARSE_MUL, top.pnode);
       break;
     case PARSE_EXPR_1:
+    {
       if (CONSUMED)
         return;
+      std::shared_ptr<node_binop> nd;
       if (tok_type == TOK_PLUS) {
         // TODO: create plus node
+        nd = std::make_shared<node_binop>();
+        nd->op = "+";
       } else if (tok_type == TOK_MINUS) {
         // TODO: create minus node
+        nd = std::make_shared<node_binop>();
+        nd->op = "-";
       } else {
         parse_end(p);
         break;
       }
       CONSUME;
-      parse_begin(p, PARSE_MUL);
-      break;
+      nd->lhs = std::move(top.pnode);
+      parse_begin(p, PARSE_MUL, nd->rhs);
+    } break;
     /*
      * mul: primary ("*" primary | "/" primary)*
      */
     case PARSE_MUL:
       parse_set_state(p, PARSE_MUL_1);
-      parse_begin(p, PARSE_PRIMARY);
+      parse_begin(p, PARSE_PRIMARY, top.pnode);
       break;
     case PARSE_MUL_1:
+    {
+      std::shared_ptr<node_binop> nd;
       if (CONSUMED)
         return;
       if (tok_type == TOK_ASTERISK) {
         // TODO: create mul node
+        nd = std::make_shared<node_binop>();
+        nd->op = "*";
       } else if (tok_type == TOK_SLASH) {
         // TODO: create div node
+        nd = std::make_shared<node_binop>();
+        nd->op = "/";
       } else {
         parse_end(p);
         break;
       }
       CONSUME;
-      parse_begin(p, PARSE_PRIMARY);
-      break;
+      nd->lhs = std::move(top.pnode);
+      parse_begin(p, PARSE_PRIMARY, nd->rhs);
+    } break;
     /*
      * primary: number | "(" expr ")"
      */
     case PARSE_PRIMARY:
+    {
+      std::shared_ptr<node_int> nd;
       if (CONSUMED)
         return;
       if (tok_type == TOK_NUM) {
         // TODO: create number node
         parse_end(p);
+        nd = std::make_shared<node_int>();
       } else if (tok_type == TOK_LP) {
         parse_set_state(p, PARSE_PRIMARY_1);
-        parse_begin(p, PARSE_EXPR);
+        parse_begin(p, PARSE_EXPR, top.pnode);
       } else {
         parse_error(p, tok, "expected number or \"(\"");
         break;
       }
       CONSUME;
-      break;
+    } break;
     case PARSE_PRIMARY_1:
       if (CONSUMED)
         return;
@@ -196,6 +214,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         CONSUME;
         parse_found(p);
         parse_end(p);
+        parse_begin(p, PARSE_PROG, p.root);
         break;
       }
       parse_error(p, tok, "expected \";\" or new line");

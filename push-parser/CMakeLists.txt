@@ -4,4 +4,5 @@ add_executable(push-parser-example
     main.cc
     lex.cc
     parse.cc
+    node.cc
 )
