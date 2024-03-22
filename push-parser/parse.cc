@@ -40,12 +40,16 @@ std::vector<std::string> parse_state_list = {
 
 
 void parse_found(parse_t& p) {
-  // TODO: parse を完了したので parse の root にASTが格納されている
   std::cout << "TODO: parse found !!" << std::endl;
+  if (p.root != nullptr) {
+    node_dump(*p.root);
+  } else {
+    std::cerr << "Error: root is nullptr at parse_found." << std::endl;
+  }
 }
 
-void parse_begin(parse_t& p, parse_state new_state, std::shared_ptr<node> nd) {
-  p.stack.push({new_state, std::move(nd)});
+void parse_begin(parse_t& p, parse_state new_state, node **nd) {
+  p.stack.push({new_state, nd});
 }
 
 void parse_end(parse_t& p) {
@@ -69,7 +73,7 @@ void parse_set_state(parse_t& p, unsigned int new_state) {
 void parse_init(parse_t& p) {
   p.root = nullptr;
   p.stack = std::stack<pstate_t>();
-  parse_begin(p, PARSE_PROG, p.root);
+  parse_begin(p, PARSE_PROG, &p.root);
 }
 
 void parse_error(parse_t& p, lex_token_t& tok, const std::string& msg) {
@@ -130,22 +134,20 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
     {
       if (CONSUMED)
         return;
-      std::shared_ptr<node_binop> nd;
+      std::string op;
       if (tok_type == TOK_PLUS) {
-        // TODO: create plus node
-        nd = std::make_shared<node_binop>();
-        nd->op = "+";
+        op = "+";
       } else if (tok_type == TOK_MINUS) {
-        // TODO: create minus node
-        nd = std::make_shared<node_binop>();
-        nd->op = "-";
+        op = "-";
       } else {
         parse_end(p);
         break;
       }
       CONSUME;
-      nd->lhs = std::move(top.pnode);
-      parse_begin(p, PARSE_MUL, nd->rhs);
+      auto nd = new node_binop(op);
+      nd->lhs = *top.pnode;
+      *top.pnode = (node *)nd;
+      parse_begin(p, PARSE_MUL, &nd->rhs);
     } break;
     /*
      * mul: primary ("*" primary | "/" primary)*
@@ -156,37 +158,34 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       break;
     case PARSE_MUL_1:
     {
-      std::shared_ptr<node_binop> nd;
       if (CONSUMED)
         return;
+      std::string op;
       if (tok_type == TOK_ASTERISK) {
-        // TODO: create mul node
-        nd = std::make_shared<node_binop>();
-        nd->op = "*";
+        op = "*";
       } else if (tok_type == TOK_SLASH) {
-        // TODO: create div node
-        nd = std::make_shared<node_binop>();
-        nd->op = "/";
+        op = "/";
       } else {
         parse_end(p);
         break;
       }
       CONSUME;
-      nd->lhs = std::move(top.pnode);
-      parse_begin(p, PARSE_PRIMARY, nd->rhs);
+      auto nd = new node_binop(op);
+      nd->lhs = *top.pnode;
+      *top.pnode = (node *)nd;
+      parse_begin(p, PARSE_PRIMARY, &nd->rhs);
     } break;
     /*
      * primary: number | "(" expr ")"
      */
     case PARSE_PRIMARY:
     {
-      std::shared_ptr<node_int> nd;
       if (CONSUMED)
         return;
       if (tok_type == TOK_NUM) {
-        // TODO: create number node
+        auto nd = new node_int(std::stoi(tok.lexeme));
+        *top.pnode = (node *)nd;
         parse_end(p);
-        nd = std::make_shared<node_int>();
       } else if (tok_type == TOK_LP) {
         parse_set_state(p, PARSE_PRIMARY_1);
         parse_begin(p, PARSE_EXPR, top.pnode);
@@ -203,7 +202,6 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         parse_error(p, tok, "expected \")\"");
         break;
       }
-      // TODO: create expr node
       parse_end(p);
       CONSUME;
       break;
@@ -214,7 +212,8 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         CONSUME;
         parse_found(p);
         parse_end(p);
-        parse_begin(p, PARSE_PROG, p.root);
+        p.root = nullptr;
+        parse_begin(p, PARSE_PROG, &p.root);
         break;
       }
       parse_error(p, tok, "expected \";\" or new line");

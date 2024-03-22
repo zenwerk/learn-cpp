@@ -10,12 +10,12 @@ struct node;
 
 struct pstate_t {
   unsigned pstate;
-  std::shared_ptr<node> pnode;
+  node **pnode;
 };
 
 struct parse_t {
   std::stack<pstate_t> stack;
-  std::shared_ptr<node> root;
+  node *root;
 };
 
 void parse_init(parse_t& parse);
