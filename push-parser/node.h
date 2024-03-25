@@ -6,6 +6,7 @@
 enum nd_type {
   ND_NUM = 1, // number
   ND_BINOP, // binary operator
+  ND_UNARY, // unary operator
 };
 
 struct node {
@@ -29,6 +30,13 @@ struct node_binop : node {
   node *rhs;
 
   explicit node_binop(std::string op = "", node *lhs = nullptr, node *rhs = nullptr) : node(ND_BINOP), op(std::move(op)), lhs(lhs), rhs(rhs) {}
+};
+
+struct node_unary : node {
+  std::string op;
+  node *expr;
+
+  explicit node_unary(std::string op = "", node *expr = nullptr) : node(ND_UNARY), op(std::move(op)), expr(expr) {}
 };
 
 void node_dump(node& n, int depth = 0);

@@ -17,6 +17,7 @@ enum parse_state {
   PARSE_PROG, PARSE_PROG_1,
   PARSE_EXPR, PARSE_EXPR_1,
   PARSE_MUL, PARSE_MUL_1,
+  PARSE_UNARY,
   PARSE_PRIMARY, PARSE_PRIMARY_1,
   PARSE_NUMBER, PARSE_NUMBER_1,
   PARSE_DIGIT, PARSE_DIGIT_1,
@@ -31,6 +32,7 @@ std::vector<std::string> parse_state_list = {
   "PARSE_PROG", "PARSE_PROG_1",
   "PARSE_EXPR", "PARSE_EXPR_1",
   "PARSE_MUL", "PARSE_MUL_1",
+  "PARSE_UNARY",
   "PARSE_PRIMARY", "PARSE_PRIMARY_1",
   "PARSE_NUMBER", "PARSE_NUMBER_1",
   "PARSE_DIGIT", "PARSE_DIGIT_1",
@@ -154,7 +156,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
      */
     case PARSE_MUL:
       parse_set_state(p, PARSE_MUL_1);
-      parse_begin(p, PARSE_PRIMARY, top.pnode);
+      parse_begin(p, PARSE_UNARY, top.pnode);
       break;
     case PARSE_MUL_1:
     {
@@ -172,8 +174,30 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       CONSUME;
       auto nd = new node_binop(op);
       nd->lhs = *top.pnode;
-      *top.pnode = (node *)nd;
+      *top.pnode = nd;
       parse_begin(p, PARSE_PRIMARY, &nd->rhs);
+    } break;
+    /*
+     * unary: "-"? unary | primary
+     */
+    case PARSE_UNARY:
+    {
+      if (CONSUMED)
+        return;
+      std::string op;
+      if (tok_type == TOK_MINUS)
+        op = "-";
+      else {
+        parse_set_state(p, PARSE_PRIMARY);
+        break;
+      }
+      CONSUME;
+      auto nd = new node_unary(op);
+      *top.pnode = (node*)nd;
+      top.pnode = &(nd->expr);
+      // TODO: スタック操作を統一化したい
+      p.stack.pop();
+      p.stack.push({PARSE_UNARY, top.pnode});
     } break;
     /*
      * primary: number | "(" expr ")"
