@@ -43,11 +43,10 @@ std::vector<std::string> parse_state_list = {
 
 void parse_found(parse_t& p) {
   std::cout << "TODO: parse found !!" << std::endl;
-  if (p.root != nullptr) {
+  if (p.root != nullptr)
     node_dump(*p.root);
-  } else {
+  else
     std::cerr << "Error: root is nullptr at parse_found." << std::endl;
-  }
 }
 
 void parse_begin(parse_t& p, parse_state new_state, node **nd) {
@@ -142,11 +141,11 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       if (CONSUMED)
         return;
       std::string op;
-      if (tok_type == TOK_PLUS) {
+      if (tok_type == TOK_PLUS)
         op = "+";
-      } else if (tok_type == TOK_MINUS) {
+      else if (tok_type == TOK_MINUS)
         op = "-";
-      } else {
+      else {
         parse_end(p);
         break;
       }
@@ -168,11 +167,11 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       if (CONSUMED)
         return;
       std::string op;
-      if (tok_type == TOK_ASTERISK) {
+      if (tok_type == TOK_ASTERISK)
         op = "*";
-      } else if (tok_type == TOK_SLASH) {
+      else if (tok_type == TOK_SLASH)
         op = "/";
-      } else {
+      else {
         parse_end(p);
         break;
       }
@@ -212,10 +211,12 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
         auto nd = new node_int(std::stoi(tok.lexeme));
         *top.pnode = (node *)nd;
         parse_end(p);
-      } else if (tok_type == TOK_LP) {
+      }
+      else if (tok_type == TOK_LP) {
         parse_set_state(p, PARSE_PRIMARY_1);
         parse_begin(p, PARSE_EXPR, top.pnode);
-      } else {
+      }
+      else {
         parse_error(p, tok, "expected number or \"(\"");
         break;
       }

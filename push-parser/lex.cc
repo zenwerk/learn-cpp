@@ -53,11 +53,10 @@ void log_tk(lex_token_t& tk) {
 void lex_log_token(lex_token_t& tk) {
   for (auto &t : lex_token_list) {
     if (t.type == tk.type) {
-      if (t.type == TOK_NUM) {
+      if (t.type == TOK_NUM)
         std::cout << "token: " << tk.lexeme << ", line " << tk.line << std::endl;
-      } else {
+      else
         std::cout << "token: " << t.str << ", line " << tk.line << std::endl;
-      }
       return;
     }
   }
@@ -135,7 +134,7 @@ lex_token_t lex_scan_token(lex_t& lex) {
       lex.line++;
       return tk;
     }
-    else return lex_create_token(lex, TOK_ERR, ch);
+    return lex_create_token(lex, TOK_ERR, ch);
   }
 }
 
