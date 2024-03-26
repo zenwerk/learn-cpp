@@ -63,9 +63,12 @@ void parse_end(parse_t& p) {
   }
 }
 
-void parse_set_state(parse_t& p, unsigned int new_state) {
-  if (!p.stack.empty())
+void parse_set_state(parse_t& p, unsigned int new_state, node **nd = nullptr) {
+  if (!p.stack.empty()) {
     p.stack.top().pstate = new_state;
+    if (nd != nullptr)
+      p.stack.top().pnode = nd;
+  }
   else {
     std::cerr << "Error: stack is empty at parse_set_state." << std::endl;
     exit(1);
@@ -125,6 +128,8 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       break;
     /*
      * expr: mul ("+" mul | "-" mul)*
+     *          ^
+     *     PARSE_EXPR_1
      */
     case PARSE_EXPR:
       if (CONSUMED)
@@ -152,7 +157,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       parse_begin(p, PARSE_MUL, &nd->rhs);
     } break;
     /*
-     * mul: primary ("*" primary | "/" primary)*
+     * mul: unary ("*" unary | "/" unary)*
      */
     case PARSE_MUL:
       parse_set_state(p, PARSE_MUL_1);
@@ -194,10 +199,7 @@ void parse_push_tok(parse_t& p, lex_token_t& tok) {
       CONSUME;
       auto nd = new node_unary(op);
       *top.pnode = (node*)nd;
-      top.pnode = &(nd->expr);
-      // TODO: スタック操作を統一化したい
-      p.stack.pop();
-      p.stack.push({PARSE_UNARY, top.pnode});
+      parse_set_state(p, PARSE_UNARY, &nd->expr);
     } break;
     /*
      * primary: number | "(" expr ")"
