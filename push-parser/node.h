@@ -1,3 +1,6 @@
+#ifndef PUSH_PARSER_NODE_H
+#define PUSH_PARSER_NODE_H
+
 #include <cstdint>
 #include <string>
 #include <memory>
@@ -40,3 +43,5 @@ struct node_unary : node {
 };
 
 void node_dump(node& n, int depth = 0);
+
+#endif

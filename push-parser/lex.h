@@ -1,5 +1,5 @@
-#ifndef PUSH_PARSER_LEXER_H
-#define PUSH_PARSER_LEXER_H
+#ifndef PUSH_PARSER_LEX_H
+#define PUSH_PARSER_LEX_H
 
 #include <string>
 #include <memory>
