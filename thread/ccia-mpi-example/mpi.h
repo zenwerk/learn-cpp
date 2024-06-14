@@ -147,7 +147,7 @@ public:
 
   explicit Dispatcher(Queue *q_) : q(q_) {}
 
-  // handleはTemplateDispatcherを返す
+  // handle は TemplateDispatcher<Dispatcher, Message, Func> を返す
   template<typename Message, typename Func>
   TemplateDispatcher<Dispatcher, Message, Func> handle(Func &&f) {
     return TemplateDispatcher<Dispatcher, Message, Func>(q, this, std::forward<Func>(f));
