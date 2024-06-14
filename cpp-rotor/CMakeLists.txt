@@ -32,7 +32,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/basiliscos/cpp-rotor.git
     GIT_TAG v0.24
     GIT_SUBMODULES ""
-    BUILD_BOOST_ASIO ON
+    #BUILD_BOOST_ASIO $<IF:$<WIN32:True>,ON,OFF>
     )
 FetchContent_MakeAvailable(rotor)
 
