@@ -3,6 +3,7 @@
 #include <mutex>
 #include <functional>
 #include <thread>
+#include <future>
 
 #include <chrono>
 #include <iostream>
@@ -32,6 +33,7 @@ struct JobData {
   time_point end;
 };
 
+using JobHandle = std::shared_future<void>;
 
 class JobSystem {
 public:
@@ -56,16 +58,20 @@ public:
     }
   }
 
-  void schedule(const std::function<void()> &job) {
+  JobHandle schedule(const std::function<void()> &job) {
+    // packaged_task と shared_future を作成
+    std::packaged_task<void()> task(job);
+    auto future = task.get_future().share();
     {
       std::lock_guard<std::mutex> lock(mtx);
       job_counter.fetch_add(1); // インクリメント
       complete_flag.store(false); // 未完了にする
       // ジョブをキューにプッシュ
-      q.push(job);
+      q.push(std::move(task));
     }
     // 待機中のワーカースレッドをひとつ起こす
     cv.notify_one();
+    return future;
   }
 
   void waitForAll() const {
@@ -74,7 +80,7 @@ public:
   }
 
 private:
-  std::queue<std::function<void()> > q;
+  std::queue<std::packaged_task<void()>> q;
   mutable std::mutex mtx;
   std::vector<std::thread> workers;
   std::condition_variable cv;
@@ -85,7 +91,7 @@ private:
   void workerThreadFunction() {
     // 無限ループで待機と実行を繰り返す
     while (true) {
-      std::function<void()> job; // ジョブの入れ物を用意
+      std::packaged_task<void()> job; // ジョブの入れ物を用意
       {
         // ジョブキューにジョブが追加されるまで待機する
         std::unique_lock<std::mutex> lock(mtx);
@@ -170,7 +176,7 @@ int main() {
   // いくつかのジョブをスケジュール
   for (int i = 0; i < 20; ++i) {
     // ジョブをスケジュール
-    jobSystem.schedule([i, &jobData]() {
+    auto handle = jobSystem.schedule([i, &jobData]() {
       auto thisId = std::this_thread::get_id();
 
       // 開始時間を記録
@@ -195,6 +201,8 @@ int main() {
 
     // 少し待機してから次のジョブをスケジュールする
     busyWait(std::chrono::milliseconds(2));
+
+    // handle.wait(); ジョブ終了を待機できる
   }
 
   // 全てのジョブが完了するのを待つ
