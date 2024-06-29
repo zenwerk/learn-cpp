@@ -30,4 +30,7 @@ add_executable(std-thread-waitgroup
 add_executable(std-thread-input-and-echo
     input_and_echo.cc)
 
+add_executable(std-thread-job-system
+    job_system.cc)
+
 add_subdirectory(ccia-mpi-example)
