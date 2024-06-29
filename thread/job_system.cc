@@ -58,6 +58,7 @@ public:
     }
   }
 
+  // 依存タスクなしのジョブ投入
   JobHandle schedule(const std::function<void()> &job) {
     // packaged_task と shared_future を作成
     std::packaged_task<void()> task(job);
@@ -72,6 +73,22 @@ public:
     // 待機中のワーカースレッドをひとつ起こす
     cv.notify_one();
     return future;
+  }
+
+  // 依存タスクを持つジョブ投入
+  JobHandle schedule(const std::function<void()> &job,
+                     const std::vector<JobHandle> &dependencies) {
+    auto wrapper = [job, dependencies]() {
+      // 全ての依存ジョブが終わるまで待機する
+      for (auto& dep : dependencies) {
+        if (dep.valid()) {
+          dep.wait();
+        }
+      }
+
+      job();
+    };
+    return schedule(wrapper);
   }
 
   void waitForAll() const {
@@ -162,6 +179,24 @@ std::string createTimeline(const std::vector<JobData> &jobData, time_point globa
 
 std::mutex dataMutex;
 
+void func(std::unordered_map<std::thread::id, std::vector<JobData>> &jobData, int name) {
+  JobData data;
+  data.name = name;
+  data.start = now();
+
+  int sleepTime = generateRandomInt(5, 10);
+  busyWait(std::chrono::milliseconds(sleepTime));
+
+  data.end = now();
+
+  auto thisId = std::this_thread::get_id();
+  std::lock_guard<std::mutex> lock(dataMutex);
+  if (!jobData.contains(thisId)) {
+    jobData[thisId] = {};
+  }
+  jobData[thisId].push_back(data);
+}
+
 int main() {
   // ジョブシステムの作成
   unsigned int threadCount = 4;
@@ -172,37 +207,27 @@ int main() {
 
   // 開始時間を記録
   auto globalStart = now();
-
-  // いくつかのジョブをスケジュール
-  for (int i = 0; i < 20; ++i) {
-    // ジョブをスケジュール
-    auto handle = jobSystem.schedule([i, &jobData]() {
-      auto thisId = std::this_thread::get_id();
-
-      // 開始時間を記録
-      JobData data;
-      data.name = 'A' + i;
-      data.start = now();
-
-      // ランダムな時間だけ待機する
-      int sleepTime = generateRandomInt(5, 10);
-      busyWait(std::chrono::milliseconds(sleepTime));
-
-      // 終了時間を記録
-      data.end = now();
-
-      // ジョブデータを保存
-      std::lock_guard<std::mutex> lock(dataMutex);
-      if (!jobData.contains(thisId)) {
-        jobData[thisId] = {};
-      }
-      jobData[thisId].push_back(data);
+  // ジョブAをスケジュールする
+  std::vector<JobHandle> jobAHandles;
+  for (int i = 0; i < 4; ++i) {
+    auto handle = jobSystem.schedule([&jobData]() {
+      func(jobData, 'A');
     });
 
-    // 少し待機してから次のジョブをスケジュールする
-    busyWait(std::chrono::milliseconds(2));
+    // ハンドルを保持しておく
+    jobAHandles.push_back(handle);
 
-    // handle.wait(); ジョブ終了を待機できる
+    busyWait(std::chrono::milliseconds(2));
+  }
+
+  // ジョブBをスケジュールする
+  for (int i = 0; i < 4; ++i) {
+    // ジョブAを待機するためハンドルを渡す
+    jobSystem.schedule([&jobData]() {
+      func(jobData, 'B');
+    }, jobAHandles);
+
+    busyWait(std::chrono::milliseconds(2));
   }
 
   // 全てのジョブが完了するのを待つ
