@@ -59,9 +59,18 @@ public:
   }
 
   // 依存タスクなしのジョブ投入
-  JobHandle schedule(const std::function<void()> &job) {
-    // packaged_task と shared_future を作成
-    std::packaged_task<void()> task(job);
+  // JobSystemクラス内のscheduleメソッドをテンプレート化
+  template<typename F, typename... Args>
+  JobHandle schedule(F&& f, Args&&... args) {
+    auto taskWrapper = [f = std::forward<F>(f), ...args = std::forward<Args>(args)]() mutable {
+      if constexpr (sizeof...(args) > 0) {
+        f(args...); // 引数がある場合は、引数を渡して呼び出す
+      } else {
+        f(); // 引数がない場合は、引数なしで呼び出す
+      }
+    };
+
+    std::packaged_task<void()> task(taskWrapper);
     auto future = task.get_future().share();
     {
       std::lock_guard<std::mutex> lock(mtx);
@@ -76,19 +85,36 @@ public:
   }
 
   // 依存タスクを持つジョブ投入
-  JobHandle schedule(const std::function<void()> &job,
-                     const std::vector<JobHandle> &dependencies) {
-    auto wrapper = [job, dependencies]() {
+  // TODO: 関数名を schedule に統一したい
+  template<typename F, typename... Args>
+  JobHandle schedule_with_dep(F&& f, const std::vector<JobHandle>& dependencies, Args&&... args) {
+    auto taskWrapper = [this, f = std::forward<F>(f), dependencies, ...args = std::forward<Args>(args)] mutable {
       // 全ての依存ジョブが終わるまで待機する
       for (auto& dep : dependencies) {
         if (dep.valid()) {
           dep.wait();
         }
       }
-
-      job();
+      if constexpr (sizeof...(args) > 0) {
+        f(args...);
+      } else {
+        f();
+      }
     };
-    return schedule(wrapper);
+
+/*
+    std::packaged_task<void()> task(taskWrapper);
+    auto future = task.get_future().share();
+    {
+      std::lock_guard<std::mutex> lock(mtx);
+      job_counter.fetch_add(1);
+      complete_flag.store(false);
+      q.push(std::move(task));
+    }
+    cv.notify_one();
+    return future;
+*/
+    return schedule(taskWrapper);
   }
 
   void waitForAll() const {
@@ -223,12 +249,23 @@ int main() {
   // ジョブBをスケジュールする
   for (int i = 0; i < 4; ++i) {
     // ジョブAを待機するためハンドルを渡す
-    jobSystem.schedule([&jobData]() {
+    jobSystem.schedule_with_dep([&jobData]() {
       func(jobData, 'B');
     }, jobAHandles);
 
     busyWait(std::chrono::milliseconds(2));
   }
+
+
+  // 引数付きのジョブをスケジュールする
+  auto h = jobSystem.schedule([](int a, int b) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(5));
+    std::cout << a << " + " << b << " = " << a + b << std::endl;
+  }, 1, 2);
+  jobSystem.schedule_with_dep([](int a, int b) {
+    std::cout << a << " + " << b << " = " << a + b << std::endl;
+  }, std::vector<JobHandle>{h}, 123, 456);
+
 
   // 全てのジョブが完了するのを待つ
   jobSystem.waitForAll();
