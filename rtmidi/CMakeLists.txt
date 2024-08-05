@@ -1,7 +1,7 @@
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(rtmidi_sample
-    main.cc
+    basic.cc
     )
 
 target_include_directories(rtmidi_sample

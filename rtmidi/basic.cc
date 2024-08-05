@@ -72,13 +72,13 @@ void midiOut(std::unique_ptr<RtMidiOut> &mout) {
   message.push_back(100);
   mout->sendMessage(&message);
   // Note On: 144, 64, 90
-  message[0] = 144;
+  message[0] = 144; // 0x90
   message[1] = 64;
   message[2] = 90;
   mout->sendMessage(&message);
   _sleep(500); // Platform-dependent ... see example in tests directory.
   // Note Off: 128, 64, 40
-  message[0] = 128;
+  message[0] = 128; // 0x80
   message[1] = 64;
   message[2] = 40;
   mout->sendMessage(&message);
@@ -106,7 +106,7 @@ void midiIn(std::unique_ptr<RtMidiIn> &min) {
   // Don't ignore sysex, timing, or active sensing messages.
   min->ignoreTypes(false, false, false);
 
-  std::cout << "\nReading MIDI input ... press <enter> to quit.\n";
+  std::cout << "\nReading MIDI input ... press any key to quit.\n";
   char input;
   std::cin.get(input);
 }
