@@ -1,17 +1,22 @@
 set(CMAKE_CXX_STANDARD 20)
 
+include_directories(
+    ${rtmidi_SOURCE_DIR}
+)
+
+link_libraries(rtmidi)
+
+
 add_executable(rtmidi_sample
     basic.cc
     )
 
-target_include_directories(rtmidi_sample
-    PRIVATE
-    ${rtmidi_SOURCE_DIR}
+add_executable(rtmidi_beat_example
+    beat.cc
     )
 
-target_link_libraries(rtmidi_sample
-    PRIVATE
-    rtmidi
+add_executable(rtmidi_beat_example_2
+    beat2.cc
     )
 
 if(WIN32)
