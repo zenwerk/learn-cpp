@@ -73,13 +73,13 @@ void midiOut(std::unique_ptr<RtMidiOut> &mout) {
   mout->sendMessage(&message);
   // Note On: 144, 64, 90
   message[0] = 144; // 0x90
-  message[1] = 64;
+  message[1] = 63;
   message[2] = 90;
   mout->sendMessage(&message);
   _sleep(500); // Platform-dependent ... see example in tests directory.
   // Note Off: 128, 64, 40
   message[0] = 128; // 0x80
-  message[1] = 64;
+  message[1] = 63;
   message[2] = 40;
   mout->sendMessage(&message);
   std::cout << "Midi OUT!" << std::endl;
