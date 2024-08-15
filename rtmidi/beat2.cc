@@ -31,12 +31,12 @@ constexpr uint32_t get_unit_value<std::chrono::milliseconds>() {
 
 template<>
 constexpr uint32_t get_unit_value<std::chrono::microseconds>() {
-    return 1000000;
+    return 1'000'000;
 }
 
 template<>
 constexpr uint32_t get_unit_value<std::chrono::nanoseconds>() {
-    return 1000000000;
+    return 1'000'000'000;
 }
 
 void calc_tick() {

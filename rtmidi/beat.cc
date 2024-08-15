@@ -25,7 +25,7 @@ void calc_tick() {
     std::cerr << "Invalid TPQN value: " << tpqn << std::endl;
     return;
   }
-  qn_time = (60.0f / bpm) * 1000000; // BPMから四分音符(1拍)の時間を計算 (micros)
+  qn_time = (60.0f / bpm) * 1'000'000; // BPMから四分音符(1拍)の時間を計算 (micros)
   tick_time = qn_time / tpqn; // 四分音符の時間を分解能(TPQN)で割って 1 tick に必要な時間を計算 (microsec)
   f8_interval = tpqn / midi_clock_base; // 四分音符の分解能から MIDI Clock イベントの送信間隔を計算
 }
