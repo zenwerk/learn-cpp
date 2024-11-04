@@ -33,4 +33,7 @@ add_executable(std-thread-input-and-echo
 add_executable(std-thread-job-system
     job_system.cc)
 
+add_executable(std-thread-suspend-resume
+    suspend_thread.cc)
+
 add_subdirectory(ccia-mpi-example)
