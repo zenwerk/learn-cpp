@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-project(awesomeProjectCpp
+project(learn-cpp
     LANGUAGES C CXX
     VERSION 0.1.0
     )
@@ -73,3 +73,5 @@ add_subdirectory(blueprint)
 add_subdirectory(push-parser)
 
 add_subdirectory(chatgpt)
+
+add_subdirectory(lemon)
